@@ -32,11 +32,18 @@ def compact_svd(matrix):
     #Calculate Ur or Vr
     if len(matrix) <= len(matrix[0]):
         ur_matrix = get_Ur_Vr_Matrix(dot_product) #Calculates the matrix Ur
+        dimen_m = len(ur_matrix)
         vr_matrix = []
-        for index in range(len(ur_matrix)):
-            vj_vector = (1/(matrix_S[index][index])) * np.dot(trasp,ur_matrix[index])
-            vr_matrix.append(vj_vector)
-            #complete
+        for index in range(dimen_m):
+            vj = (1/(matrix_S[index][index])) * np.dot(trasp,ur_matrix[:,index].reshape(-1,1))
+            vr_matrix.append(np.transpose(vj)[0])
+        vr_matrix = np.transpose(vr_matrix)
+        vr_matrix = np.transpose(vr_matrix)
+        print(ur_matrix)
+        print("================== VR")
+        print(vr_matrix)
+        print("================== S")
+        print(matrix_S)
     else:
         vr_matrix = get_Ur_Vr_Matrix(dot_product) #Calculates the matrix Ur
         dimen_m = len(vr_matrix[0])
@@ -47,9 +54,9 @@ def compact_svd(matrix):
         ur_matrix =np.array(ur_matrix)
         ur_matrix = np.transpose(ur_matrix)
         print(ur_matrix)
-        print("==================")
+        print("================== Matrix VR")
         print(np.transpose(vr_matrix))
-        print("==================")
+        print("================== Matrix S")
         print(matrix_S)
         #Add retorn 
 
