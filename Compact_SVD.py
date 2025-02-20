@@ -28,10 +28,10 @@ def compact_svd(matrix):
     return ur_matrix, matrix_S, vr_matrix.T
 
 
-"""
-def prueba():
-    i = 100
-    while i <=1000:
+
+"""def prueba():
+    i = 250
+    while i <=2000:
         matrix_ =np.random.rand(2*i,i)
         init_alg_1 =tm.perf_counter()
         #print(matrix_)
@@ -45,10 +45,10 @@ def prueba():
         print(fin_alg_1-init_alg_1)
         print("Tiempo de algoritmo numpy " + str(i))
         print(fin_np_alg-init_np_alg)
-        i = i +100
-"""
+        i = i +250
+
 #==============Test====================================
-#prueba()
+prueba()
 #i = 100
 #matrix_ =np.random.rand(i,2*i)
 #print(matrix_)
@@ -56,7 +56,7 @@ def prueba():
 #aux=np.dot(ur,s)
 #aux= np.dot(aux, vr)
 #print("=========================================")
-#print(aux)
+#print(aux)"""
     
 #Notas de prueba
 """
@@ -67,4 +67,5 @@ Calcular el tiempo de ejecución en calcular la SVD de Numpy y la SVD compacta
 Presentar una gráfica en cada experimento dimension m vs tiempo en segundos 
 Método T1 metodo nuestro T2 metodo de numpy para obtener porcentaje de diferencia que tan eficiente es uno a otro  
 Multiplicar para llegar a la misma matriz y ver documentación
+250 hasta 2000 con saltos 250
 """
