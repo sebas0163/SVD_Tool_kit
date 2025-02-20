@@ -1,65 +1,71 @@
 import numpy as np
-
-def get_S_matrix(eigenValues):
-    new_eigenvalues = []
-    for eigenval in eigenValues: #Calculate the square root of the eigenvalue different of zero
-        if eigenval != 0:
-            new_eigenvalues.append(np.sqrt(eigenval))
-    new_eigenvalues.sort(reverse=True) # sort the eigenvalues from the min to the max
-    rang = len(new_eigenvalues) # Takes the range of the matrix
-    matrix_S = np.zeros((rang,rang))
-    for index in range(rang):
-        matrix_S[index][index] = new_eigenvalues[index] #Create a diagonal matrix with the eigen values
-    return matrix_S
+import time as tm
+def get_S_matrix(eigenValues): #Optimized code for de matrix S
+    eigenValues = np.sqrt(eigenValues[eigenValues>0])  #filter and sort the eigenvalues 
+    eigenValues[::-1].sort()
+    return np.diag(eigenValues) #transform de eigenvalues in diagonal matrix 
 def get_Ur_Vr_Matrix(dot_product):
-    eigenval, eigenvec = np.linalg.eig(dot_product)
-    indx_no_null = np.where(eigenval != 0)[0]
-    eigenvec = eigenvec[:,indx_no_null]
-    return eigenvec
+    eigenval, eigenvec = np.linalg.eigh(dot_product) #Get the eigenvalues and the eigenvectors
+    return eigenvec[:,eigenval>0] #Filter the eigenvects diferents of zero
 
 def compact_svd(matrix):
-    #Calculate the matrix transpose
-    trasp = matrix.transpose()
-    dot_product = np.zeros((1,1))
-    #Calculate the matrix's dimentions to take a decition about the next operation.
-    if len(matrix) <= len(matrix[0]):
-        dot_product = np.dot(matrix, trasp) #makes the dot product between A and A ^t
-    else:
-        dot_product = np.dot(trasp, matrix) #makes the dot product between A ^t and A
-    #Calculate the eigenvalues
-    eigenvalues = np.linalg.eigvals(dot_product)
+    m,n = matrix.shape #get the matrix's dimentions
+    #Calculate if  the matrix transpose is needed 
+    transpose_order = m>n
+    #makes the dot product of A A^T or A^T. dependes of the dimentions
+    dot_product = np.dot(matrix,matrix.T) if not transpose_order else np.dot(matrix.T,matrix)
+    #Calculate the Matrix S and the eigenvalues
+    eigenvalues = np.linalg.eigvalsh(dot_product)
     matrix_S = get_S_matrix(eigenvalues)
-    #Calculate Ur or Vr
-    if len(matrix) <= len(matrix[0]):
-        ur_matrix = get_Ur_Vr_Matrix(dot_product) #Calculates the matrix Ur
-        dimen_m = len(ur_matrix)
-        vr_matrix = []
-        for index in range(dimen_m):
-            vj = (1/(matrix_S[index][index])) * np.dot(trasp,ur_matrix[:,index].reshape(-1,1))
-            vr_matrix.append(np.transpose(vj)[0])
-        vr_matrix = np.transpose(vr_matrix)
-        vr_matrix = np.transpose(vr_matrix)
-        print(ur_matrix)
-        print("================== VR")
-        print(vr_matrix)
-        print("================== S")
-        print(matrix_S)
+    #Calculates de eigenvects of the Ur matrix or Vr matrix
+    eigenvects = get_Ur_Vr_Matrix(dot_product)
+    if not transpose_order:
+        ur_matrix = eigenvects
+        vr_matrix = np.dot(matrix.T, ur_matrix) / np.diag(matrix_S) #Calculates the vectors Vj = 1/singval A.T uj
     else:
-        vr_matrix = get_Ur_Vr_Matrix(dot_product) #Calculates the matrix Ur
-        dimen_m = len(vr_matrix[0])
-        ur_matrix =[]
-        for index in range(dimen_m):
-            uj = (1/(matrix_S[index][index])) * np.dot(matrix,vr_matrix[:,index].reshape(-1,1))
-            ur_matrix.append(uj)
-        ur_matrix =np.array(ur_matrix)
-        ur_matrix = np.transpose(ur_matrix)
-        print(ur_matrix)
-        print("================== Matrix VR")
-        print(np.transpose(vr_matrix))
-        print("================== Matrix S")
-        print(matrix_S)
-        #Add retorn 
+        vr_matrix = eigenvects
+        ur_matrix = np.dot(matrix, vr_matrix) / np.diag(matrix_S)  #Calculates the vectors uj = 1/singval A vj
+    return ur_matrix, matrix_S, vr_matrix.T
 
-matrix_ =np.array([[2,1,2],[2,-2,2],[-2,-1,-2],[2,0,2]])
-compact_svd(matrix=matrix_)
+
+
+"""def prueba():
+    i = 250
+    while i <=2000:
+        matrix_ =np.random.rand(2*i,i)
+        init_alg_1 =tm.perf_counter()
+        #print(matrix_)
+        ur,s,vr =compact_svd(matrix=matrix_)
+        fin_alg_1 =tm.perf_counter()
+        init_np_alg = tm.perf_counter()
+        a,b,c =np.linalg.svd(matrix_)
+        fin_np_alg = tm.perf_counter()
+
+        print("Tiempo de algoritmo propio: " + str(i))
+        print(fin_alg_1-init_alg_1)
+        print("Tiempo de algoritmo numpy " + str(i))
+        print(fin_np_alg-init_np_alg)
+        i = i +250
+
+#==============Test====================================
+prueba()
+#i = 100
+#matrix_ =np.random.rand(i,2*i)
+#print(matrix_)
+# ur,s,vr =compact_svd(matrix=matrix_)
+#aux=np.dot(ur,s)
+#aux= np.dot(aux, vr)
+#print("=========================================")
+#print(aux)"""
     
+#Notas de prueba
+"""
+1: Crear matrices de tamaño m x 2m, donde m=100:100:1000
+2: Crear matrices de tamaño 2m x m, donde m=100:100:1000
+3: Crear matrices de tamaño m x m, donde m=100:100:1000
+Calcular el tiempo de ejecución en calcular la SVD de Numpy y la SVD compacta
+Presentar una gráfica en cada experimento dimension m vs tiempo en segundos 
+Método T1 metodo nuestro T2 metodo de numpy para obtener porcentaje de diferencia que tan eficiente es uno a otro  
+Multiplicar para llegar a la misma matriz y ver documentación
+250 hasta 2000 con saltos 250
+"""
