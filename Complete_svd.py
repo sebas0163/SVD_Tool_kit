@@ -1,5 +1,4 @@
 import numpy as np
-import time as tm
 """
     The function `full_svd` computes the full singular value decomposition (SVD) of a given matrix `A`.
     
@@ -11,34 +10,26 @@ import time as tm
     """
 def full_svd(A):
     m, n = A.shape
-    if m > n:
-        M1 = A.T @ A 
-        D, V1 = np.linalg.eig(M1) #Takes de eigenvectos and eigenvalues of the matrix
-        y1 = D # y1 is the eigenvects
-        const = n * np.max(y1) * np.finfo(float).eps
-        y2 = y1 > const
-        rA = np.sum(y2) #matrix rank
-        y3 = y1 * y2
-        s1 = np.sort(np.sqrt(y3))[::-1]
-        order = np.argsort(np.sqrt(y3))[::-1]
-        V = V1[:, order]
-        S = np.vstack([np.diag(s1), np.zeros((m - len(s1), n))])
-        U1 = (A @ V[:, :rA]) / s1[:rA]
-        U2, _ = np.linalg.qr(np.hstack([U1, np.random.rand(m, m - rA)]))
-        U = np.hstack([U1, U2[:, rA:m]])
+    if m >= n:
+        M1 = A.T @ A
+        D, V1 = np.linalg.eigh(M1) 
+        order = np.argsort(D)[::-1] 
+        D, V = D[order], V1[:, order]
+        s = np.sqrt(np.maximum(D, 0))  
+        S = np.vstack([np.diag(s), np.zeros((m - n, n))])
+        mask = s > np.finfo(float).eps 
+        U1 = (A @ V[:, mask]) / s[mask]
+        U2, _ = np.linalg.qr(np.random.rand(m, m - mask.sum()))
+        U = np.hstack([U1, U2])
     else:
         M1 = A @ A.T
-        D, U1 = np.linalg.eig(M1)
-        y1 = D
-        const = m * np.max(y1) * np.finfo(float).eps
-        y2 = y1 > const
-        rA = np.sum(y2)  # rango de la matriz
-        y3 = y1 * y2
-        s1 = np.sort(np.sqrt(y3))[::-1]
-        order = np.argsort(np.sqrt(y3))[::-1]
-        U = U1[:, order]
-        S = np.hstack([np.diag(s1), np.zeros((m, n - len(s1)))])
-        V1 = (A.T @ U[:, :rA]) / s1[:rA]
-        V2, _ = np.linalg.qr(np.hstack([V1, np.random.rand(n, n - rA)]))
-        V = np.hstack([V1, V2[:, rA:n]])
-    return U,S,V
+        D, U1 = np.linalg.eigh(M1)  
+        order = np.argsort(D)[::-1]
+        D, U = D[order], U1[:, order]
+        s = np.sqrt(np.maximum(D, 0))
+        S = np.hstack([np.diag(s), np.zeros((m, n - m))])
+        mask = s > np.finfo(float).eps
+        V1 = (A.T @ U[:, mask]) / s[mask]
+        V2, _ = np.linalg.qr(np.random.rand(n, n - mask.sum()))
+        V = np.hstack([V1, V2])
+    return U, S, V.T
