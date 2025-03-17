@@ -1,4 +1,6 @@
 import numpy as np
+import time as tm
+
 """
     The function `calc_GAM` takes a list of matrices, calculates the GAM matrix for each matrix in the
     list, and returns a list containing all the calculated GAM matrices.
@@ -36,8 +38,8 @@ def calc_S(matrixs, N):
     suma =0
     for i in range(N):
         for j in range(i+1,N): #Here we ensure tha j always will be bigger than i and less than N 
-          inv_j = np.linalg.inv(gam_list[j]) #Inverts A_j
-          inv_i = np.linalg.inv(gam_list[i])#Inverts A_i 
+          inv_j = np.linalg.pinv(gam_list[j]) #Inverts A_j
+          inv_i = np.linalg.pinv(gam_list[i])#Inverts A_i 
           suma += (gam_list[i]@inv_j + gam_list[j] @ inv_i) #Here does the sumatory A_i A_j ^-1 + A_j A_i ^-1
     matrix_s = suma * const # Makes the product of the constant and the sumatorý
     return matrix_s
@@ -55,33 +57,6 @@ def calc_matrix_V(matrix_s):
     lamb = np.diag(lamb)
     return V
 """
-    The function `calc_S_i_list` takes a list of matrices and a matrix, calculates the product of each
-    matrix with the columns of the given matrix, computes the norm of the resulting vectors, and returns
-    a list of diagonal matrices constructed from these norms.
-    
-    :param matrix_list: The `matrix_list` parameter is a list of matrices. Each matrix in the list
-    represents a transformation that can be applied to a vector
-    :param matrix_v: It seems like the description of the `matrix_v` parameter is missing. Could you
-    please provide more information about it so that I can better understand its structure and how it is
-    used in the `calc_S_i_list` function?
-    :return: The function `calc_S_i_list` returns a list of diagonal matrices, where each diagonal
-    matrix is constructed from the norm of the matrix-vector products of the matrices in `matrix_list`
-    with the columns of the matrix `matrix_v`.
-    """
-def calc_S_i_list(matrix_list, matrix_v):
-    n= matrix_v.shape[1]
-    s_i_list =[] 
-    for mat in matrix_list:
-        s_i_vect =[]
-        for i in range(n):
-            col = matrix_v[:,i]
-            s_i = mat @ col
-            s_i = np.linalg.norm(s_i)
-            s_i_vect.append(s_i)
-        s_i_mat = np.diag(s_i_vect)
-        s_i_list.append(s_i_mat)
-    return s_i_list
-"""
     The function `calc_B_list` takes two matrices as input, solves a system of linear equations using
     one matrix and then appends the solution to a list for each matrix in the second input matrix.
     
@@ -98,7 +73,7 @@ def calc_S_i_list(matrix_list, matrix_v):
 def calc_B_list(matrix_v, matrix_D):
     b_list =[]
     for mat in matrix_D:
-        xi = np.linalg.solve(matrix_v, mat.T)
+        xi = np.linalg.solve(matrix_v, mat.T) #Solve the ecuation bi = V Di.T
         bi = xi.T
         b_list.append(bi)
     return b_list
@@ -108,19 +83,18 @@ def calc_B_list(matrix_v, matrix_D):
     
     :param b_list: The `b_list` parameter is a list of matrices. Each matrix in the list represents a
     set of vectors
-    :param N: The parameter N represents the number of columns in the input matrix b_list. It is used in
     the function to iterate over the columns of each matrix in b_list
     :return: The function `calc_sigma` returns a list of diagonal matrices, where each diagonal matrix
     is constructed from the norms of the columns of the input matrices in `b_list`.
     """
-def calc_sigma(b_list,N):
+def calc_sigma(b_list):
     sigma_list=[]
     for b_i in b_list:
         coef_vect =[]
-        for i in range(N):
-            coef = np.linalg.norm(b_i[:,i])
+        for i in range(b_i.shape[1]):
+            coef = np.linalg.norm(b_i[:,i]) #Calculates the norm of every column of each matrix
             coef_vect.append(coef)
-        sigma_list.append(np.diag(coef_vect))
+        sigma_list.append(np.diag(coef_vect)) #Creates a diagonal matrix with the norms in the diagonal
     return sigma_list
 """
     The function `calc_U_list` calculates a list of vectors `u_i` by solving a system of linear
@@ -140,8 +114,8 @@ def calc_sigma(b_list,N):
 def calc_U_list(b_list, sigma_list,N):
     u_list= []
     for i in range(N):
-        u_i = np.linalg.solve(sigma_list[i].T, b_list[i].T)
-        u_list.append(u_i.T)
+        u_i = np.linalg.solve(sigma_list[i].T, b_list[i].T) #Solve the ecuation ui = Σi.T Bi.T
+        u_list.append(u_i.T) # the result needs to be transposed
     return u_list
 """
     The function `high_Order_SVD` performs high-order singular value decomposition on a list of
@@ -156,24 +130,29 @@ def calc_U_list(b_list, sigma_list,N):
     3. `matrix_v`: The matrix representing the right singular vectors.
     """
 def high_Order_SVD(matrix_list):
-    N = len(matrix_list)
-    matrix_s = calc_S(matrix_list,N)
-    matrix_v = calc_matrix_V(matrix_s)
-    b_list = calc_B_list(matrix_v,matrix_list)
-    sigma_list = calc_sigma(b_list,N)
-    matrix_u_list = calc_U_list(b_list,sigma_list,N)
-    return matrix_u_list, sigma_list, matrix_v
-        
+    N = len(matrix_list) #Takes de numbers of matrices to analize
+    matrix_s = calc_S(matrix_list,N) #Calculates the matrix S, that is used to calculate de matrix V
+    matrix_v = calc_matrix_V(matrix_s) 
+    b_list = calc_B_list(matrix_v,matrix_list) #Calculates the list of matrices B, this matrices are used to calculate the sigma lists
+    sigma_list = calc_sigma(b_list)
+    matrix_u_list = calc_U_list(b_list,sigma_list,N) #calculates the list o matrices U
+    return matrix_u_list, sigma_list, matrix_v 
+     
+def prueba(i,j,N):
+    matrix_list =[]
+    for r in range(N):
+        a =np.random.rand(i,j)
+        matrix_list.append(a)
+    ini = tm.perf_counter()
+    m,l,o=high_Order_SVD(matrix_list=matrix_list)
+    end = tm.perf_counter()
+    print(end-ini)
+    d1= m[1]@l[1]@o.T
+    print("exp\n",d1)
+    print("org\n",matrix_list[1])
 
 
-a = np.array([[1,2,3],[4,5,6],[7,8,9]])
-b = np.array([[12,4,3],[45,57,65],[75,8,97],[12,13,14]])
-c = np.array([[10,247,34],[4,54,645]])
-d_list = [a,b,c]
-m,l,o=high_Order_SVD(d_list)
-d1= m[1]@l[1]@o.T
-print(d1)
-
+prueba(10,6,3)
 """
 Verification
 U has the corrects dimentions
