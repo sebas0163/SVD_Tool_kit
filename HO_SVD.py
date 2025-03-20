@@ -146,17 +146,29 @@ def prueba(i,j,N):
     ini = tm.perf_counter()
     m,l,o=high_Order_SVD(matrix_list=matrix_list)
     end = tm.perf_counter()
+    org =matrix_list[0]
+    exp=m[0]@l[0]@o.T
+    mae =np.mean(np.abs(org-exp))
+    err = (mae/np.mean(org))*100
+    print("err: ",err )
     print(end-ini)
-    d1= m[1]@l[1]@o.T
-    print("exp\n",d1)
-    print("org\n",matrix_list[1])
+def prueba_more_rows(i,j,N):
+    matrix_list =[]
+    for r in range(N):
+        a =np.random.rand(np.random.randint(j,i),j)
+        matrix_list.append(a)
+    ini = tm.perf_counter()
+    m,l,o=high_Order_SVD(matrix_list=matrix_list)
+    end = tm.perf_counter()
+    org =matrix_list[0]
+    exp=m[0]@l[0]@o.T
+    mae =np.mean(np.abs(org-exp))
+    err = (mae/np.mean(org))*100
+    print("err: ",err )
+    print(end-ini)
 
 
-prueba(10,6,3)
-"""
-Verification
-U has the corrects dimentions
-Si has the correct dimentions
+#prueba(1000,1000,5)
+#prueba_more_rows(100,10,5)
 
-"""
 
