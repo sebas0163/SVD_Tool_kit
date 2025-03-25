@@ -1,5 +1,6 @@
 import numpy as np
 import time as tm
+from LU_fact import lu_factorization,backward_substitution,forward_substitution
 
 """
     The function `calc_GAM` takes a list of matrices, calculates the GAM matrix for each matrix in the
@@ -71,12 +72,20 @@ def calc_matrix_V(matrix_s):
     matrix from the input `matrix_D`.
     """
 def calc_B_list(matrix_v, matrix_D):
-    b_list =[]
+    L,U = lu_factorization(matrix_v)
+    b_list =[] # cambiar por fact LU para V =====> LU = V x===> bi.T y y ====> UX
     for mat in matrix_D:
-        xi = np.linalg.solve(matrix_v, mat.T) #Solve the ecuation bi = V Di.T
-        bi = xi.T
+        xi =[]
+        for col in range(mat.shape[1]):
+            y = forward_substitution(L, mat[:,col])
+            xi_k = backward_substitution(U,y)
+            if col == 0:
+               xi = np.array(xi_k.reshape(-1,1))
+            else:
+                xi = np.column_stack((xi,xi_k.reshape(-1,1)))
+        bi = xi.T #N 
         b_list.append(bi)
-    return b_list
+    return b_list #luchazam
 """
     The function `calc_sigma` calculates the diagonal matrices of norms of column vectors in a list of
     matrices.
@@ -137,7 +146,7 @@ def high_Order_SVD(matrix_list):
     sigma_list = calc_sigma(b_list)
     matrix_u_list = calc_U_list(b_list,sigma_list,N) #calculates the list o matrices U
     return matrix_u_list, sigma_list, matrix_v 
-"""   
+"""     
 def prueba(i,j,N):
     matrix_list =[]
     for r in range(N):
@@ -168,7 +177,7 @@ def prueba_more_rows(i,j,N):
     print(end-ini)
 """
 
-#prueba(100,100,17)
-#prueba_more_rows(1000,500,17)
+#prueba(500,500,5)
+#prueba_more_rows(100,10,5)
 
 
