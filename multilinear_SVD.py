@@ -1,150 +1,162 @@
 import numpy as np
-from scipy.linalg import block_diag
-from tensorly import unfold
-#Funcionamiento correcto
-def detect_Range(h_list):
-    large = len(h_list)
-    for i in range(large-1):
-        if np.linalg.matrix_rank(h_list[i]) != np.linalg.matrix_rank(h_list[i+1]):
-            return False
-    return True
-#funciona 
-def calc_Q_J(h_list):
-    # Calcula Q y J correctamente
-    J = max([h.shape[0] for h in h_list])
-    I = h_list[0].shape[1]
+
+def get_Q_I(tensor):
+    J = min([h.shape[0] for h in tensor])
+    I = tensor[0].shape[1]
     Q = min(J, I)
-    return J, Q
-def frob_for_tensor(tensor):
-    sumatory =0 
-    for r in tensor:
-        for row in r:
-            for elm in row:
-                sumatory += elm**2
-    return np.sqrt(sumatory)
-def error(h_tild, h_list):
-    num = h_tild - h_list
-    num = frob_for_tensor(num)
-    den = frob_for_tensor(h_list)
-    if den ==0:
-        den = 0.00000001
-    return (num**2)/(den**2)
-def intialize(h_list,k,j,q,col_num): #mejorar inicializacion preguntar mañana
-    comprobation = detect_Range(h_list)
-    mat_A = np.random.rand(col_num, q)
-    mat_C = np.abs(np.random.rand(k,q))
-    return mat_A, mat_C
+    return Q,I
 def mode_unfold(tensor, mode):
     tensor = np.array(tensor)
     if mode == 1:
-        return tensor.transpose(1, 0, 2).reshape(tensor.shape[1], -1)
+        k,m,n = tensor.shape
+        result =[]
+        for col in range(n):
+            for row in range(m):
+                vect = []
+                for mat in range(k):
+                    vect.append(tensor[mat][row][col])
+                if len(result) ==0:
+                    result=np.array([vect]).T
+                else:
+                    vect = np.array([vect]).T
+                    result = np.hstack((result,vect))
+        return result        
     elif mode == 2:
-        return tensor.reshape(tensor.shape[0], -1)
+        return tensor.reshape(tensor.shape[0], -1) #no es así 
     elif mode == 3:
-        return tensor.transpose(2, 0, 1).reshape(tensor.shape[2], -1)
+        result =[]
+        for mat in tensor:
+            for row in mat:
+                if len(result) ==0:
+                    result = np.array([row]).T
+                else:
+                    result = np.hstack((result,np.array([row]).T))
+        return result
     else:
         raise ValueError("El modo debe ser 1, 2 o 3")
-def hierarchical_sort(matrix):
-    Q = matrix.shape[1]
-    sorted_indices = np.arange(Q)  # Índices iniciales sin ordenar
+def initialice(l,q,k):
+    mat_A = np.random.randn(l,q)
+    mat_C = np.random.randn(k,q)
+    return mat_A, mat_C
+
+def h_reconstruct(mat_A, mat_C,k,tensor):
+    h_reconst =[]
+    b_k_list=[]
+    for i in range(k):
+        h_k_tild = mat_A @ np.diag(mat_C[i,:])
+        t_k = tensor[i] @ h_k_tild
+        b_k = np.linalg.pinv(((t_k @ t_k.T))**(1/2))@t_k
+        b_k_list.append(b_k)
+        h_k_tild = tensor[i].T @ b_k
+        h_reconst.append(h_k_tild)
+    h_reconst = np.array(h_reconst)
+    b_k_list = np.array(b_k_list)
+    return h_reconst,b_k_list
     
-    # Ordenar jerárquicamente fila por fila
-    for i in range(matrix.shape[0]):
-        sorted_indices = sorted_indices[np.argsort(matrix[i, sorted_indices])]  # Orden por fila i
-    
-    C_sorted = matrix[:, sorted_indices]  # Aplicar la ordenación a C
-    return C_sorted, sorted_indices
-def reorder_ACBk(C, A, B_list):
-    C_sorted, sorted_indices = hierarchical_sort(C)
-    A_sorted = A[:, sorted_indices]  
-    B_list_sorted = [Bk[:, sorted_indices] for Bk in B_list]  
-    return C_sorted, A_sorted, B_list_sorted
-def multilineal_SVD(h_list):
-    k = len(h_list)
-    l= len(h_list[0])
-    j,q = calc_Q_J(h_list)
-    b_list =[]
-    cota = 1.5
-    iteration =0
-    #creat la matriz random
-    mat_A, mat_C = intialize(h_list, k,j,q,l)
-    #Bucle principal
-    while iteration < 1000: #modoficar
-        #Bucle de reconstrucción de b_K
-        h_sub_list =[]
-        iteration +=1
-        for i in range(k):
-            h_k = h_list[i]
-            h_k_sub = mat_A @ np.diag(mat_C[i,:])
-            t_k = h_k @ h_k_sub
-            b_k = np.linalg.pinv(((t_k @ t_k.T))**(1/2))@t_k
-            h_k_sub = h_k.T @ b_k
-            b_list.append(b_k)
-            h_sub_list.append(h_k_sub) 
-        #bucle de reconstrucción de A y C
-        h_sub_list_m = np.array(h_sub_list)
-        blocks =[]
-        for i in range(q):
-            denom = (np.linalg.norm(mat_C[:,i]))**2
-            if denom == 0:
-                denom = 1
-            bloq = (mat_C[:,i].T)/denom #Here it's calculated the ecuatiion C(:,i)/norm(C(:,i))^2
-            bloq = np.diag(bloq)
-            blocks.append(bloq)
-        b_diag = np.block([i for i in blocks])
-        h_1 = mode_unfold(h_sub_list_m,1)
-        print("bdiag\n",b_diag.shape)
-        print("h\n",h_1.shape)
-        mat_A = h_1@b_diag.T #Revisar que esta matriz sea correcta
-        #Reconstrucción de C
-        mat_c_aux =[]
-        for i in range(q):
-            denom = np.linalg.norm(mat_A[:,i])**2
-            if denom ==0:
-                denom = 1
-            diag = np.diag(((mat_A[i,:].T) /denom))
-            if len(mat_c_aux) ==0:
-                mat_c_aux = np.array(diag)
-            else:
-                mat_c_aux = np.hstack((mat_c_aux,diag))
-        h_3 = mode_unfold(h_sub_list_m,3)
-        mat_C= h_3@ mat_c_aux.T
-        #Normalizacion de las columnas de C
-        norms = np.linalg.norm(mat_C,axis=0)
-        norms[norms ==0] =1
-        mat_C = mat_C / norms
-        #Arreglar C para que sea no negativo =====> si hay menos se traslada a A esto por un bucle
-        c_row, c_col = mat_C.shape
-        for i in range(c_row): #Posible bug que A y C no son del mismo tamaño 
-            for r in range(c_col): #modificar ya que puede que las filas sean distintas
-                if mat_C[i][r] < 0:
-                    mat_C[i][r] = abs(mat_C[i][r])
-                    mat_A[i][r] = mat_C[i][r] *-1
-        # Bucle para calcular h tilde
-        h_k_tild =[]
-        for i in range(k):
-            h_k_tild.append(mat_A @ np.diag(c[i,:]) @ b_list[i].T)
-        # calcular error
-        h_k_tild = np.array(h_k_tild)
-        h_list_m = np.array(h_list)
-        err = error(h_k_tild, h_list_m)
-        print("error \n",err)
-        if err < cota:
+def act_mat_A(mat_C,q,h_reconst):
+    unfl_mode_1 = mode_unfold(h_reconst,1)
+    bloq_list =[]
+    for i in range(q):
+        col = mat_C[:,i]
+        denom = (np.linalg.norm(col))**2
+        if denom ==0:
+            denom = 0.00001
+        bloq = np.diag((col.T)/denom)
+        bloq_list.append(bloq)
+    bloq_diag = np.block([b for b in bloq_list])
+    mat_A = unfl_mode_1 @ bloq_diag.T
+    return mat_A
+def act_mat_C(mat_A, q, h_reconst):
+    diag_list =[]
+    unfld_mode_3 = mode_unfold(h_reconst,3)
+    for i in range(q):
+        num = mat_A[i,:].T
+        col = mat_A[:,i]
+        denom = (np.linalg.norm(col))**2
+        if denom == 0:
+            denom = 0.00000001
+        diag = np.diag(num/denom)
+        if i ==0:
+            diag_list =np.array(diag)
+        else:
+            diag_list = np.hstack((diag_list,diag))
+    mat_C = unfld_mode_3 @ diag_list.T
+    return mat_C
+def normalice_C(mat_C,q):
+    for i in range(q):
+        col = mat_C[:,i]
+        norm = np.linalg.norm(col)
+        if norm ==0:
+            norm =0.0000001
+        mat_C[:,i] = col / norm
+    return mat_C
+def abs_mat_C(mat_C, mat_A):
+    m,n = mat_C.shape
+    for i in range(m):
+        for j in range(n):
+            if mat_C[i][j] <0:
+                mat_C[i][j] = abs(mat_C[i][j])
+                mat_A[i][j] = mat_A[i][j] *-1
+    return mat_A, mat_C
+def act_h_reconst(mat_A, mat_C, k, b_k_list):
+    h_reconst =[]
+    for i in range(k):
+        h_k_tild = mat_A @ np.diag(mat_C[i,:]) @ b_k_list[i].T
+        h_reconst.append(h_k_tild)
+    return np.array(h_reconst)
+def frob_tensor(tensor):
+    sumatory =0
+    for mat in tensor:
+        for row in mat:
+            for elm in row:
+                sumatory += elm**2
+    return sumatory
+def errorr(h_reconst, tensor):
+    num = h_reconst - tensor
+    num = frob_tensor(num)
+    denom = frob_tensor(tensor)
+    if denom ==0:
+        denom = 0.0000001
+    return num/denom
+def multilineal_SVD(tensor):
+    k = len(tensor)
+    q, l = get_Q_I(tensor)
+    mat_A, mat_C = initialice(l,q,k)
+    cote =1
+    iterations = 0
+    err_old = 10
+    while iterations < 1000:
+        h_reconst, b_k_list = h_reconstruct(mat_A,mat_C,k,tensor)
+        #Reconstruct A
+        mat_A = act_mat_A(mat_C,q,h_reconst)
+        #Reconst C
+        mat_C = act_mat_C(mat_A,q,h_reconst)
+        #Normalice colums of C
+        mat_C = normalice_C(mat_C,q)
+        #compensation
+        mat_A, mat_C = abs_mat_C(mat_C,mat_A)
+        #Act_H_k
+        h_reconst = act_h_reconst(mat_A,mat_C,k,b_k_list)
+        #Calc err
+        err = errorr(h_reconst,tensor)
+        delta_err = (err_old-err)/err_old
+        err_old = err
+        print(delta_err)
+        if abs(delta_err) < cote:
             break
-    #Ordenar las columnas de C A Y H 
-    mat_C, mat_A, b_list =reorder_ACBk(mat_C,mat_A,b_list)
-    return mat_C, mat_A, b_list
+        iterations +=1
+    return mat_A, mat_C, b_k_list
 
 a = np.array([[1,2,1],[6,7,1],[10,12,1]])
 b = np.array([[1,2,4],[6,7,8],[10,11,12]])
 c = np.array([[1,2,3],[6,7,5],[10,11,13]])
-h_ls = [a,b,c]
-h_ls = np.array(h_ls)
-mat_C, mat_A, b_list =multilineal_SVD(h_ls)
-
-h_1 = b_list[0] @ np.diag(c[1,:]) @ mat_A.T
-print(h_1)
-
+lista = [a,b,c]
+tensor = np.array(lista)
+mat_A, mat_C, b_k_list = multilineal_SVD(tensor)
+print("mat_a \n",mat_A.shape)
+print("mat_c \n",np.diag(mat_C[0,:]))
+print("mat_b_k\n", b_k_list[0].shape)
+print(b_k_list[0]@np.diag(mat_C[0,:])@mat_A[0].T)
 """
 Frobenius suma de todos las entradas al cuadrado (fondo, filas,  columnas)
 Construir con matrice predefinidas es decir definir A c_k y b_k para multiplicar ver el resultado
