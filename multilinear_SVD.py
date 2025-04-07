@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sc
 
 def get_Q_I(tensor):
     J = min([h.shape[0] for h in tensor])
@@ -45,7 +46,8 @@ def h_reconstruct(mat_A, mat_C,k,tensor):
     for i in range(k):
         h_k_tild = mat_A @ np.diag(mat_C[i,:])
         t_k = tensor[i] @ h_k_tild
-        b_k = np.linalg.pinv(((t_k @ t_k.T))**(1/2))@t_k
+        b_k = sc.linalg.sqrtm((t_k @ t_k.T)) #primero raiz y luego inversa
+        b_k = np.linalg.pinv(b_k)@t_k
         b_k_list.append(b_k)
         h_k_tild = tensor[i].T @ b_k
         h_reconst.append(h_k_tild)
@@ -110,11 +112,11 @@ def frob_tensor(tensor):
         for row in mat:
             for elm in row:
                 sumatory += elm**2
-    return sumatory
+    return np.sqrt(sumatory)
 def errorr(h_reconst, tensor):
     num = h_reconst - tensor
-    num = frob_tensor(num)
-    denom = frob_tensor(tensor)
+    num = frob_tensor(num)**2
+    denom = frob_tensor(tensor)**2
     if denom ==0:
         denom = 0.0000001
     return num/denom
@@ -122,10 +124,10 @@ def multilineal_SVD(tensor):
     k = len(tensor)
     q, l = get_Q_I(tensor)
     mat_A, mat_C = initialice(l,q,k)
-    cote =1
+    cote =0.001
     iterations = 0
-    err_old = 10
-    while iterations < 1000:
+    err_old = 1
+    while iterations < 10000:
         h_reconst, b_k_list = h_reconstruct(mat_A,mat_C,k,tensor)
         #Reconstruct A
         mat_A = act_mat_A(mat_C,q,h_reconst)
@@ -139,23 +141,33 @@ def multilineal_SVD(tensor):
         h_reconst = act_h_reconst(mat_A,mat_C,k,b_k_list)
         #Calc err
         err = errorr(h_reconst,tensor)
-        delta_err = (err_old-err)/err_old
+        delta_err = abs((err_old-err)/err_old)
         err_old = err
-        print(delta_err)
-        if abs(delta_err) < cote:
+        if iterations ==1:
+            print("err inicial\n", delta_err)
+        if delta_err < cote:
             break
         iterations +=1
+    print("Error\n",delta_err)
+    print("iteración\n:", iterations)
     return mat_A, mat_C, b_k_list
 
-a = np.array([[1,2,1],[6,7,1],[10,12,1]])
-b = np.array([[1,2,4],[6,7,8],[10,11,12]])
-c = np.array([[1,2,3],[6,7,5],[10,11,13]])
+mat_a_ = np.array([[1,2,3],[4,5,6],[7,8,9]])
+b_1 = np.array([[1,0,0],[0,1,0],[0,0,1]])
+b_2 = np.array([[1,2,2],[2,-1,2],[-2,2,1]])
+b_3 = np.array([[3,1,1],[-1,2,-1],[-1,-1,3]])
+c_1 =np.diag([1,2,3])
+c_2 =np.diag([8,2,5])
+c_3 =np.diag([48,42,5])
+a = b_1 @  c_1 @ mat_a_.T
+b = b_2 @  c_2 @ mat_a_.T
+c = b_3 @  c_3 @ mat_a_.T
 lista = [a,b,c]
 tensor = np.array(lista)
 mat_A, mat_C, b_k_list = multilineal_SVD(tensor)
-print("mat_a \n",mat_A.shape)
-print("mat_c \n",np.diag(mat_C[0,:]))
-print("mat_b_k\n", b_k_list[0].shape)
+#print("mat_a \n",mat_A)
+#print("mat_c \n",np.diag(mat_C[0,:]))
+#print("mat_b_k\n", b_k_list[0])
 print(b_k_list[0]@np.diag(mat_C[0,:])@mat_A[0].T)
 """
 Frobenius suma de todos las entradas al cuadrado (fondo, filas,  columnas)
