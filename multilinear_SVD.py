@@ -1,5 +1,6 @@
 import numpy as np
 import scipy as sc
+import matplotlib.pyplot as plt
 
 def get_Q_I(tensor):
     J = min([h.shape[0] for h in tensor])
@@ -120,7 +121,24 @@ def errorr(h_reconst, tensor):
     if denom ==0:
         denom = 0.0000001
     return num/denom
+def hierarchical_sort(matrix):
+    Q = matrix.shape[1]
+    sorted_indices = np.arange(Q)  # Índices iniciales sin ordenar
+    
+    # Ordenar jerárquicamente fila por fila
+    for i in range(matrix.shape[0]):
+        sorted_indices = sorted_indices[np.argsort(matrix[i, sorted_indices])]  # Orden por fila i
+    
+    C_sorted = matrix[:, sorted_indices]  # Aplicar la ordenación a C
+    return C_sorted, sorted_indices
+def reorder_ACBk(C, A, B_list):
+    C_sorted, sorted_indices = hierarchical_sort(C)
+    A_sorted = A[:, sorted_indices]  
+    B_list_sorted = [Bk[:, sorted_indices] for Bk in B_list]  
+    return C_sorted, A_sorted, B_list_sorted
 def multilineal_SVD(tensor):
+    err_vect=[]
+    iteraciones_vec =[]
     k = len(tensor)
     q, l = get_Q_I(tensor)
     mat_A, mat_C = initialice(l,q,k)
@@ -144,18 +162,23 @@ def multilineal_SVD(tensor):
         delta_err = abs((err_old-err)/err_old)
         err_old = err
         if iterations ==1:
-            print("err inicial\n", delta_err)
+            pass
         if delta_err < cote:
             break
         iterations +=1
+        err_vect.append(delta_err)
+        iteraciones_vec.append(iterations)
     print("Error\n",delta_err)
     print("iteración\n:", iterations)
+    #mat_C, mat_A, b_list =reorder_ACBk(mat_C,mat_A,b_k_list)
+    plt.plot(iteraciones_vec, err_vect)
+    plt.show()
     return mat_A, mat_C, b_k_list
 
 mat_a_ = np.array([[1,2,3],[4,5,6],[7,8,9]])
-b_1 = np.array([[1,0,0],[0,1,0],[0,0,1]])
-b_2 = np.array([[1,2,2],[2,-1,2],[-2,2,1]])
-b_3 = np.array([[3,1,1],[-1,2,-1],[-1,-1,3]])
+b_1 = np.linalg.qr(np.array([[1,0,0],[0,1,0],[0,0,1]]))[0]
+b_2 = np.linalg.qr(np.array([[1,2,2],[2,-1,2],[-2,2,1]]))[0]
+b_3 = np.linalg.qr(np.array([[3,1,1],[-1,2,-1],[-1,-1,3]]))[0]
 c_1 =np.diag([1,2,3])
 c_2 =np.diag([8,2,5])
 c_3 =np.diag([48,42,5])
@@ -166,9 +189,9 @@ lista = [a,b,c]
 tensor = np.array(lista)
 mat_A, mat_C, b_k_list = multilineal_SVD(tensor)
 #print("mat_a \n",mat_A)
-#print("mat_c \n",np.diag(mat_C[0,:]))
+print("mat_c \n",mat_C)
 #print("mat_b_k\n", b_k_list[0])
-print(b_k_list[0]@np.diag(mat_C[0,:])@mat_A[0].T)
+#print(b_k_list[0]@np.diag(mat_C[0,:])@mat_A[0].T)
 """
 Frobenius suma de todos las entradas al cuadrado (fondo, filas,  columnas)
 Construir con matrice predefinidas es decir definir A c_k y b_k para multiplicar ver el resultado
