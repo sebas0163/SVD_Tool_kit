@@ -17,10 +17,11 @@ from SVD import svd
     """
 def t_product(t1, t2):
     k,m,n = t1.shape
-    _,l,_ = t2.shape
+    _,l,p = t2.shape
+    assert n == l
     t1_ff = np.fft.fft(t1, axis=0)
     t2_ff = np.fft.fft(t2, axis=0)
-    t_r = np.zeros((k,m,l), dtype= complex)
+    t_r = np.zeros((k,m,p), dtype= complex)
     index = k+1//2
     for i in range(index):
         t_r[i,:,:] = t1_ff[i,:,:] @ t2_ff[i,:,:]
@@ -51,7 +52,10 @@ def tensorSVD(tensor):
     for i in range(index): #iterates from the start until the mid matrix
         u_i, s_i, v_i = np.linalg.svd(tensor_a_aux[i,:,:],full_matrices=True) #Aks for the SVD of the front slice of the tesor
         u_tensor[i,:,:] = u_i
-        s_tensor[i,:,:]= np.diag(s_i) #it most change for no square mmatrix
+        s_matrix = np.zeros((m,n), dtype=complex)
+        min_dim = min(m,n)
+        s_matrix[:min_dim,:min_dim] = np.diag(s_i)
+        s_tensor[i,:,:]= s_matrix #it most change for no square mmatrix
         v_tensor[i,:,:] = v_i.T
     for i in range(index,k): #iterates from the middle until the end of the tensor
         aux = k-i
@@ -66,11 +70,15 @@ def tensorSVD(tensor):
    
 
 #Tensor T
-a = np.array([[1,2,3],[4,5,6],[7,8,9]])
-b = np.array([[10,20,30],[40,50,60],[70,80,90]])
-c = np.array([[100,200,300],[400,500,600],[700,800,700]])
+a = np.array([[1,2,3],[4,5,4,],[7,8,10]])
+b = np.array([[10,20,8],[40,50,9],[70,80,1]])
+c = np.array([[100,200,45],[400,500,45],[700,800,45]])
+d = np.array([[100,200,45],[400,500,45],[700,800,45]])
 tensor = np.array([a,b,c])
 u_tensor, s_tensor, v_tensor =tensorSVD(tensor)
+print(u_tensor.shape)
+print(s_tensor.shape)
+print(v_tensor.shape)
 r = t_product(u_tensor, s_tensor)
 r = t_product(r,v_tensor)
 print("Tensor\n", r.real)
