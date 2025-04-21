@@ -1,5 +1,6 @@
 import numpy as np
 from SVD import svd
+import time as tm
 """
     The function `t_product` calculates the element-wise product of two 3D arrays after performing Fast
     Fourier Transform operations.
@@ -58,7 +59,7 @@ def tensorSVD(tensor):
         s_tensor[i,:,:]= s_matrix #it most change for no square mmatrix
         v_tensor[i,:,:] = v_i.T
     for i in range(index,k): #iterates from the middle until the end of the tensor
-        aux = k-i
+        aux = k-i %k
         u_tensor[i,:,:] = np.conjugate(u_tensor[aux,:,:])
         s_tensor[i,:,:] = s_tensor[aux, :, :]
         v_tensor[i,:,:] = np.conjugate(v_tensor[aux,:,:])
@@ -68,17 +69,30 @@ def tensorSVD(tensor):
     v_tensor = np.transpose(v_tensor, (0,2,1)) #Transpose the tensor
     return u_tensor, s_tensor, v_tensor
    
+def err(t_org, t_const):
+    num = abs(np.linalg.norm(t_org-t_const))
+    denom = np.linalg.norm(t_org)
+    if denom ==0:
+        denom = 0.0000001
+    return (num/denom)*100
+
 
 #Tensor T
-a = np.array([[1,2,3],[4,5,4,],[7,8,10]])
-b = np.array([[10,20,8],[40,50,9],[70,80,1]])
-c = np.array([[100,200,45],[400,500,45],[700,800,45]])
-d = np.array([[100,200,45],[400,500,45],[700,800,45]])
-tensor = np.array([a,b,c])
+a = np.random.rand(3,5)
+b = np.random.rand(3,5)
+c = np.random.rand(3,5)
+d = np.random.rand(3,5)
+tensor = np.random.rand(2000,30,50)
+ini = tm.perf_counter()
 u_tensor, s_tensor, v_tensor =tensorSVD(tensor)
-print(u_tensor.shape)
-print(s_tensor.shape)
-print(v_tensor.shape)
+fin = tm.perf_counter()
 r = t_product(u_tensor, s_tensor)
 r = t_product(r,v_tensor)
-print("Tensor\n", r.real)
+print("Error",err(tensor,r.real))
+print("tiempo\n", fin-ini)
+
+"""
+Para k <3 error muy grande
+para k =3 erro inexistente 
+Para k >3 error del 3%
+"""
