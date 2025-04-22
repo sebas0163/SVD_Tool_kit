@@ -31,6 +31,16 @@ def t_product(t1, t2):
         t_r[i,:,:] = t_r[aux, :,:].conj()
     t_r = np.fft.ifft(t_r, axis=0)
     return t_r
+def transpose_Tensor(tensor_):
+    k = tensor.shape[0]-1
+    tensor_copy = tensor_.copy()
+    tensor[0,:,:] = tensor_[0,:,:].conj().T
+    i=1
+    while k > 0:
+        tensor_[i,:,:] = tensor_copy[k,:,:].conj().T
+        k -= 1
+        i +=1
+    return tensor_
 """
     The function `tensorSVD` performs Singular Value Decomposition (SVD) on a 3D tensor using Fast
     Fourier Transform (FFT) for efficient computation.
@@ -57,7 +67,7 @@ def tensorSVD(tensor):
         min_dim = min(m,n)
         s_matrix[:min_dim,:min_dim] = np.diag(s_i)
         s_tensor[i,:,:]= s_matrix #it most change for no square mmatrix
-        v_tensor[i,:,:] = v_i.T
+        v_tensor[i,:,:] = v_i.conj().T
     for i in range(index,k): #iterates from the middle until the end of the tensor
         aux = k-i %k
         u_tensor[i,:,:] = np.conjugate(u_tensor[aux,:,:])
@@ -78,16 +88,21 @@ def err(t_org, t_const):
 
 
 #Tensor T
-a = np.random.rand(3,5)
-b = np.random.rand(3,5)
-c = np.random.rand(3,5)
-d = np.random.rand(3,5)
-tensor = np.random.rand(2000,30,50)
+#a = np.random.rand(3,5)
+#b = np.random.rand(3,5)
+#c = np.random.rand(3,5)
+#d = np.random.rand(3,5)
+#tensor = np.random.rand(2000,30,50)
+a = np.array([[1,2],[3,4]])
+b = np.array([[5,6],[7,8]])
+c = np.array([[9,10],[11,12]])
+tensor = np.array([a,b,c])
 ini = tm.perf_counter()
 u_tensor, s_tensor, v_tensor =tensorSVD(tensor)
 fin = tm.perf_counter()
 r = t_product(u_tensor, s_tensor)
 r = t_product(r,v_tensor)
+print("Reconst\n", r.real)
 print("Error",err(tensor,r.real))
 print("tiempo\n", fin-ini)
 
