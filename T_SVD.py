@@ -32,14 +32,13 @@ def t_product(t1, t2):
     t_r = np.fft.ifft(t_r, axis=0)
     return t_r
 def transpose_Tensor(tensor_):
-    k = tensor.shape[0]-1
-    tensor_copy = tensor_.copy()
-    tensor[0,:,:] = tensor_[0,:,:].conj().T
-    i=1
-    while k > 0:
-        tensor_[i,:,:] = tensor_copy[k,:,:].conj().T
-        k -= 1
-        i +=1
+    k = tensor_.shape[0]
+    cop = tensor_.copy()
+    tensor_[0,:,:] = tensor_[0,:,:].conj().T
+    j = k -1
+    for i in range(1,k):
+        tensor_[i,:,:] = cop[j,:,:].conj().T
+        j-=1
     return tensor_
 """
     The function `tensorSVD` performs Singular Value Decomposition (SVD) on a 3D tensor using Fast
@@ -76,7 +75,7 @@ def tensorSVD(tensor):
     u_tensor = np.fft.ifft(u_tensor,axis=0) #Return the tensor to the continous domain
     v_tensor = np.fft.ifft(v_tensor,axis=0)
     s_tensor = np.fft.ifft(s_tensor,axis=0)
-    v_tensor = np.transpose(v_tensor, (0,2,1)) #Transpose the tensor
+    v_tensor = transpose_Tensor(v_tensor)
     return u_tensor, s_tensor, v_tensor
    
 def err(t_org, t_const):
@@ -96,7 +95,8 @@ def err(t_org, t_const):
 a = np.array([[1,2],[3,4]])
 b = np.array([[5,6],[7,8]])
 c = np.array([[9,10],[11,12]])
-tensor = np.array([a,b,c])
+d = np.array([[100,100],[1,28]])
+tensor = np.array([a,b,d])
 ini = tm.perf_counter()
 u_tensor, s_tensor, v_tensor =tensorSVD(tensor)
 fin = tm.perf_counter()

@@ -23,6 +23,19 @@ function [U, S, V] = T_SVD(A)
   disp(V);
 end
 
+function transp = tranpose_t(tensor)
+  dim = size(tensor);
+  transp_aux = tensor;
+  tensor(:,:,1) = transpose(conj(tensor(:,:,1)));
+  j = dim(3);
+  for i=2: dim(3)
+    tensor(:,:,i)= transpose(conj(transp_aux(:,:,j)));
+    j --;
+  endfor
+  transp = tensor;
+
+end
+
 
 function r = t_product(t_1, t_2)
   t_1_aux = fft(t_1,[],3);
@@ -40,17 +53,19 @@ function r = t_product(t_1, t_2)
   endfor
   r = ifft(r_aux,[],3);
 end
-data = [1 2 3 4 5 6 7 8 9 ...
-        10 20 30 40 50 60 70 80 90 ...
-        100 200 300 400 500 600 700 800 900];
+data = [1 2 3 4  ...
+        5 6 7 8 ...
+        9 10 11 12 ];
 
-T = reshape(data, [3, 3, 3]);
+T = reshape(data, [2, 2, 3]);
 T(:,:,1)= T(:,:,1)';
 T(:,:,2)= T(:,:,2)';
 T(:,:,3)= T(:,:,3)';
 [U,S,V] = T_SVD(T);
-V_perm = permute(V, [2, 1, 3]);
+V_perm = tranpose_t(V);
 l = t_product(U,S);
 r = t_product(l,V_perm);
+T
+r
 
 
