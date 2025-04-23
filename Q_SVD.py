@@ -151,6 +151,9 @@ def get_Uq_Vq(mat_U_eq, mat_V_eq):
     values matrix `mat_S`.
     """
 def Q_SVD(mat_Q):
+    m,n = mat_Q.shape
+    if m !=n:
+        raise ValueError("mat_Q must be square")
     mat_Q_eq=calculate_Q_e(mat_Q)
     mat_U,vect_S,mat_V = calc_complex_svd(mat_Q_eq)
     mat_S = get_S_Q(vect_S)
