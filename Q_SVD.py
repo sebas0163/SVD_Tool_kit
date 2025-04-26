@@ -59,7 +59,7 @@ def complex_mat_to_quat_mat(A, B):
     """
 def calculate_Q_e(quaternion_mat):
     mat_A, mat_B = quat_to_complex(quaternion_mat)
-    #mat_B.real = -mat_B.real #Erro in the example, with this it's the same example
+    mat_B.real = -mat_B.real #Erro in the example, with this it's the same example
     mat_A_bar = np.conjugate(mat_A)
     mat_B_bar = (mat_B * -1).conj()
     top = np.hstack((mat_A,mat_B_bar))
@@ -162,10 +162,47 @@ def Q_SVD(mat_Q):
     mat_U_Q = complex_mat_to_quat_mat(mat_U_Q_a,mat_U_Q_b)
     mat_V_Q = complex_mat_to_quat_mat(mat_V_Q_a,mat_V_Q_b)
     return mat_U_Q, mat_V_Q, mat_S
+"""
+    The function `dot_product_quat` calculates the dot product of two matrices represented as
+    quaternions.
     
-q11 = quaternion.quaternion(1,1,1,1)
-q12 = quaternion.quaternion(2,1,0,-1)
+    :param mat_A: It seems like the definition of the `dot_product_quat` function is incomplete. Could
+    you please provide the missing part of the code related to the `mat_A` parameter so that I can
+    better understand the function and assist you further?
+    :param mat_B: It seems like you have provided the function `dot_product_quat` that calculates the
+    dot product of two matrices represented as quaternions. However, you have not provided the
+    definition or content of `mat_B`. Could you please provide the content of `mat_B` so that I can
+    assist you
+    :return: The `dot_product_quat` function is returning the result of the dot product operation
+    between two matrices `mat_A` and `mat_B`. The result is a new matrix of quaternions where each
+    element is calculated by multiplying and summing the corresponding elements of `mat_A` and `mat_B`
+    according to the rules of matrix multiplication.
+    """
+def dot_product_quat(mat_A, mat_B):
+    m1, n1 = mat_A.shape
+    m2, n2 = mat_B.shape
+    if n1 != m2:
+        raise ValueError("Inconsistent dimentions")
+    result = np.zeros((m1, n2),dtype=quaternion.quaternion)
+    for i in range(m1):  # Filas de A
+        for j in range(n2):  # Columnas de B
+            for k in range(n1):  # Elementos comunes
+                result[i][j] += mat_A[i, k] * mat_B[k, j]
+    return result 
+"""
+Test
+q11 = quaternion.quaternion(41,14,88,18)
+q12 = quaternion.quaternion(78,-15,4,0)
+q13 = quaternion.quaternion(-78,-12,45,68)
 q21 = quaternion.quaternion(1,0,-1,2)
 q22 = quaternion.quaternion(3,2,-2,1)
-mat_q = np.array([[q11,q12],[q21,q22]])
-Q_SVD(mat_q)
+q23= quaternion.quaternion(47,24,-24,15)
+q31 = quaternion.quaternion(100,85,-41,26)
+q32 = quaternion.quaternion(-3,-2,-2,-1)
+q33= quaternion.quaternion(478,240,-24,150)
+mat_q = np.array([[q11,q12,q13],[q21,q22,q23],[q31,q32,q33]])
+u,v,s=Q_SVD(mat_q)
+r = dot_product_quat(u,s)
+r = dot_product_quat(r, v.conj().T)
+print(r)
+"""
