@@ -99,4 +99,35 @@ def GSVD_test(m,n):
     plt.ylabel("Error (%)")
     plt.title("Reconstruction Error")
     plt.show()
-GSVD_test(100,100)
+def HO_test(N):
+    matrix_list =[]
+    times =[]
+    labels =[]
+    errors =[]
+    for i in range(5):
+        for r in range(N):
+            a =np.random.rand(100,100)
+            matrix_list.append(a)
+        start = tm.perf_counter()
+        m,l,o=high_Order_SVD(matrix_list=matrix_list)
+        end = tm.perf_counter()
+        times.append((end-start)*1000)
+        labels.append(N)
+        N+=1
+        org =matrix_list[0]
+        mat_exp=m[0]@l[0]@o.T
+        error = err(org,mat_exp)
+        errors.append(error)
+    plt.figure(figsize=(10,9))
+    plt.plot(labels, times, label='Experimental time',marker="o")
+    plt.xlabel("Dimensions")
+    plt.ylabel("Execution time (ms)")
+    plt.title("Execution time for N matrix of 100x100")
+    plt.show()
+    plt.figure(figsize=(10,9))
+    plt.bar(labels, errors, width=0.3)
+    plt.xlabel("Dimensions")
+    plt.ylabel("Error (%)")
+    plt.title("Reconstruction Error for N matrix of 100x100")
+    plt.show()
+HO_test(5)
