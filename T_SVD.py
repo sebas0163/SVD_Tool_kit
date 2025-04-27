@@ -128,31 +128,3 @@ def t_product(A, B, transform=None):
             C[i] = A_hat[i] @ B_hat[i]
         C = inverselineartransform(C, transform)
     return C.real if np.isrealobj(A) and np.isrealobj(B) else C
-"""
-    The function calculates the error percentage between two vectors t_org and t_const.
-    
-    :param t_org: It seems like you were about to provide some information about the parameter `t_org`,
-    but the message got cut off. Could you please provide more details or context about the `t_org`
-    parameter so that I can assist you further with the `err` function?
-    :param t_const: It seems like the function `err` is calculating the error between two vectors
-    `t_org` and `t_const` using the formula `(num/denom)*100`, where `num` is the absolute difference
-    between the norms of `t_org` and `t_const`, and `denom
-    :return: The function `err` calculates the error between two vectors `t_org` and `t_const` using the
-    formula:
-    """
-def err(t_org, t_const):
-    num = abs(np.linalg.norm(t_org-t_const))
-    denom = np.linalg.norm(t_org)
-    if denom ==0:
-        denom = 0.0000001
-    return (num/denom)*100
-
-tensor = np.random.rand(20,30,50)
-ini = tm.perf_counter()
-u_tensor, s_tensor, v_tensor =T_SVD(tensor)
-v = transpose_Tensor(v_tensor)
-fin = tm.perf_counter()
-r = t_product(u_tensor, s_tensor)
-r = t_product(r,v_tensor)
-print("Error",err(tensor,r.real))
-print("tiempo\n", fin-ini)

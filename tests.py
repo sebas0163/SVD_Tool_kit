@@ -1,11 +1,11 @@
-from T_SVD import T_SVD
+import numpy as np
+import time as tm
+import matplotlib.pyplot as plt
+from T_SVD import T_SVD,t_product,transpose_Tensor
 from Q_SVD import Q_SVD
 from SVD import svd
 from HO_SVD import high_Order_SVD
 from GSVD import GSVD
-import numpy as np
-import time as tm
-import matplotlib.pyplot as plt
 
 def err(t_org, t_const):
     num = abs(np.linalg.norm(t_org-t_const))
@@ -130,4 +130,33 @@ def HO_test(N):
     plt.ylabel("Error (%)")
     plt.title("Reconstruction Error for N matrix of 100x100")
     plt.show()
-HO_test(5)
+def test_T_SVD(k,m,n):
+    errors =[]
+    times =[]
+    labels =[]
+    for i in range(10):
+        tensor = np.random.rand(k,m,n)
+        labels.append(str(k)+str(m)+"x"+str(n))
+        m +=10
+        n +=10
+        k+=10
+        start = tm.perf_counter()    
+        u_tensor, s_tensor, v_tensor =T_SVD(tensor)
+        v = transpose_Tensor(v_tensor)
+        end = tm.perf_counter()
+        r = t_product(u_tensor, s_tensor)
+        r = t_product(r,v_tensor)
+        errors.append(err(tensor,r))
+        times.append((end-start)*1000)
+    plt.figure(figsize=(10,9))
+    plt.plot(labels, times, label='Experimental Time',marker="o")
+    plt.xlabel("Dimensions")
+    plt.ylabel("Execution time (ms)")
+    plt.legend()
+    plt.show()
+    plt.figure(figsize=(10,9))
+    plt.bar(labels, errors, width=0.3)
+    plt.xlabel("Dimensions")
+    plt.ylabel("Error (%)")
+    plt.title("Reconstruction Error for N matrix of 100x100")
+    plt.show()
