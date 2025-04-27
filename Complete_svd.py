@@ -32,4 +32,4 @@ def full_svd(A):
         V1 = (A.T @ U[:, mask]) / s[mask]
         V2, _ = np.linalg.qr(np.random.rand(n, n - mask.sum()))
         V = np.hstack([V1, V2])
-    return U, S, V.T
+    return U, S, V
