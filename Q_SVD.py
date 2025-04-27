@@ -110,7 +110,7 @@ def get_S_Q(vect_s):
     transpose of `mat_V`.
     """
 def calc_complex_svd(mat_Q_eq):
-    mat_U, mat_S, mat_V = np.linalg.svd(mat_Q_eq)
+    mat_U, mat_S, mat_V = np.linalg.svd(mat_Q_eq,full_matrices=True)
     return mat_U,mat_S, mat_V.conj().T
 """
     The function `get_Uq_Vq` takes two matrices as input, splits them into submatrices, and returns four
@@ -158,7 +158,6 @@ def Q_SVD(mat_Q):
     mat_U,vect_S,mat_V = calc_complex_svd(mat_Q_eq)
     mat_S = get_S_Q(vect_S)
     mat_U_Q_a, mat_U_Q_b, mat_V_Q_a, mat_V_Q_b=get_Uq_Vq(mat_U,mat_V)
-    print(mat_U_Q_a)
     mat_U_Q = complex_mat_to_quat_mat(mat_U_Q_a,mat_U_Q_b)
     mat_V_Q = complex_mat_to_quat_mat(mat_V_Q_a,mat_V_Q_b)
     return mat_U_Q, mat_V_Q, mat_S
@@ -190,19 +189,19 @@ def dot_product_quat(mat_A, mat_B):
                 result[i][j] += mat_A[i, k] * mat_B[k, j]
     return result 
 """
-Test
-q11 = quaternion.quaternion(41,14,88,18)
-q12 = quaternion.quaternion(78,-15,4,0)
-q13 = quaternion.quaternion(-78,-12,45,68)
-q21 = quaternion.quaternion(1,0,-1,2)
-q22 = quaternion.quaternion(3,2,-2,1)
-q23= quaternion.quaternion(47,24,-24,15)
-q31 = quaternion.quaternion(100,85,-41,26)
-q32 = quaternion.quaternion(-3,-2,-2,-1)
-q33= quaternion.quaternion(478,240,-24,150)
-mat_q = np.array([[q11,q12,q13],[q21,q22,q23],[q31,q32,q33]])
-u,v,s=Q_SVD(mat_q)
-r = dot_product_quat(u,s)
-r = dot_product_quat(r, v.conj().T)
-print(r)
-"""
+    The function calculates the Frobenius norm for a matrix of quaternions.
+    
+    :param mat: It seems like the `mat` parameter is a matrix represented as a list of lists. Each inner
+    list represents a row in the matrix, and each element in the inner list represents an element in
+    that row
+    :return: The function `frob_for_quaternions` is returning the Frobenius norm of the input matrix
+    `mat` treated as a collection of quaternions. The Frobenius norm of a matrix is calculated by taking
+    the square root of the sum of the squares of all the elements in the matrix. In this case, the
+    elements of the matrix are treated as quaternions, and the
+    """
+def frob_for_quaternions(mat):
+    sumatory =quaternion.quaternion(0,0,0,0)
+    for row in mat:
+        for elm in row:
+            sumatory+= elm**2
+    return sumatory ** (1/2)

@@ -1,12 +1,20 @@
 import numpy as np
 import time as tm
+import quaternion
 import matplotlib.pyplot as plt
 from T_SVD import T_SVD,t_product,transpose_Tensor
-from Q_SVD import Q_SVD
+from Q_SVD import Q_SVD, frob_for_quaternions,dot_product_quat
 from SVD import svd
 from HO_SVD import high_Order_SVD
 from GSVD import GSVD
-
+def err_quat(Q_org, Q_const):
+    num = abs(frob_for_quaternions(Q_org-Q_const))
+    denom = frob_for_quaternions(Q_org)
+    if denom ==quaternion.quaternion(0,0,0,0):
+        denom = quaternion.quaternion(1,0,0,0)
+    result=(num/denom)*100
+    mag = (result.w**2 + result.x **2 + result.y **2+ result.z**2)**(1/2)
+    return mag
 def err(t_org, t_const):
     num = abs(np.linalg.norm(t_org-t_const))
     denom = np.linalg.norm(t_org)
@@ -160,3 +168,42 @@ def test_T_SVD(k,m,n):
     plt.ylabel("Error (%)")
     plt.title("Reconstruction Error for N matrix of 100x100")
     plt.show()
+def test_Q_SVD(n):
+    Q_mat =[]
+    labels =[]
+    times = []
+    errors=[]
+    for _ in range(10):
+        Q_mat=[]
+        for _ in range(n):
+            row = []
+            for _ in range(n):
+                q = quaternion.quaternion(np.random.random(),np.random.random(),np.random.random(),np.random.random())
+                row.append(q)
+            Q_mat.append(row)
+        Q_mat = np.array(Q_mat)
+        start = tm.perf_counter()
+        u,v,s=Q_SVD(Q_mat)
+        print(u.shape)
+        print(s.shape)
+        end = tm.perf_counter()
+        times.append((end-start)*1000)
+        labels.append(str(n)+"x"+str(n))
+        r = dot_product_quat(u,s)
+        r = dot_product_quat(r, v.conj().T)
+        error = err_quat(Q_mat,r)
+        errors.append(error)
+        n+=1
+    plt.figure(figsize=(10,9))
+    plt.plot(labels, times, label='Experimental Time',marker="o")
+    plt.xlabel("Dimensions")
+    plt.ylabel("Execution time (ms)")
+    plt.legend()
+    plt.show()
+    plt.figure(figsize=(10,9))
+    plt.bar(labels, errors, width=0.3)
+    plt.xlabel("Dimensions")
+    plt.ylabel("Error (%)")
+    plt.title("Reconstruction Error for a Quaternion Matrix of differents dimensions")
+    plt.show()
+    
