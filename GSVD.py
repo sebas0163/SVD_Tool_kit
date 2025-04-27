@@ -8,13 +8,11 @@ def GSVD(matrix_A,matrix_B):
     m,n = matrix_A.shape
     j,k = matrix_B.shape
     if k != n: #Validate the number of columns
-        print("Number of columns between matrix A and B are different")
+        raise ValueError("Number of columns between matrix A and B are different")
     else:
         stacked_matrix = np.vstack((matrix_A,matrix_B))
         rank = np.linalg.matrix_rank(stacked_matrix)
-        q, s,z =np.linalg.svd(stacked_matrix) #Calculates the SVD vals (change for my implementation complete)
-        q, s,z =svd(stacked_matrix,True)
-        s = np.diag(s)
+        q, s,z =np.linalg.svd(stacked_matrix,full_matrices=True) #Calculates the SVD vals (change for my implementation complete)
         sigma_r = np.diag(s[:rank])#Here works well
         u,cs,vh = cossin(q, p=m, q=rank) #Here makes de CS decomposition for matrix Q obtained in the svd p is the number of the first m rows of the submatrix q11 and q is the rank
         u_1 = u[:m,:rank] #Calculates U1 from u
