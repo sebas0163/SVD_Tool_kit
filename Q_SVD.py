@@ -67,38 +67,32 @@ def calculate_Q_e(quaternion_mat):
     mat_Q_eq = np.vstack((top,bottom)) 
     return mat_Q_eq 
 """
-    The function `find_val` checks if any element in the input vector is within 0.1 of a specified
-    value.
+    The function `get_S_Q` takes a vector of singular values, sorts them in descending order, removes
+    duplicates within a tolerance, and returns a diagonal matrix with the unique singular values.
     
-    :param vect: The `vect` parameter is a list of values that the function `find_val` will iterate
-    through to compare with the `val` parameter
-    :param val: The `val` parameter in the `find_val` function represents the value that each element in
-    the `vect` list is compared against. The function checks if the difference between each element in
-    the `vect` list and the `val` parameter is less than 0.1. If any element
-    :return: The function `find_val` is returning a boolean value. It returns `False` if any element in
-    the `vect` list is within 0.1 of the `val` parameter, otherwise it returns `True`.
-    """
-def find_val(vect, val): #Deletes copy eigenvalues
-    for i in vect:
-        if i - val <0.1:
-            return False
-    return True
-"""
-    The function `get_S_Q` takes a vector as input, removes duplicate values, and returns a diagonal
-    matrix with the unique values.
-    
-    :param vect_s: It seems like the definition of the function `get_S_Q` is incomplete. The function is
-    trying to create a diagonal matrix using unique values from the input vector `vect_s`. However, the
-    function is using a `find_val` function which is not defined in the provided code snippet
-    :return: The function `get_S_Q` is returning a diagonal matrix created from the unique elements in
-    the input vector `vect_s`.
+    :param vect_s: It seems like the code snippet you provided is a Python function that takes a list of
+    singular values `vect_s` as input and returns a diagonal matrix with unique singular values
+    :return: The function `get_S_Q` returns a diagonal matrix created from the unique singular values in
+    the input vector `vect_s`. The function first sorts the singular values in descending order, then
+    iterates through the sorted values to identify unique singular values based on a specified tolerance
+    level `tol`. Finally, it constructs a diagonal matrix using these unique singular values and returns
+    it.
     """
 def get_S_Q(vect_s):
-    vect =[]
-    for i in vect_s:
-        if find_val(vect, i):
-           vect.append(i)
-    return np.diag(vect)
+    tol=1e-8
+    # Ordenar valores singulares de mayor a menor
+    sorted_vals = sorted(vect_s, reverse=True)
+    
+    # Lista para almacenar valores únicos
+    unique_vals = []
+
+    for val in sorted_vals:
+        # Si no hay valores o la diferencia relativa es significativa, se agrega
+        if all(abs(val - u)/max(abs(u), abs(val), 1e-12) > tol for u in unique_vals):
+            unique_vals.append(val)
+
+    # Crear matriz diagonal
+    return np.diag(unique_vals)
 """
     The function `calc_complex_svd` calculates the singular value decomposition (SVD) of a complex
     matrix.

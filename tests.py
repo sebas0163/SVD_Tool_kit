@@ -184,8 +184,6 @@ def test_Q_SVD(n):
         Q_mat = np.array(Q_mat)
         start = tm.perf_counter()
         u,v,s=Q_SVD(Q_mat)
-        print(u.shape)
-        print(s.shape)
         end = tm.perf_counter()
         times.append((end-start)*1000)
         labels.append(str(n)+"x"+str(n))
@@ -193,7 +191,7 @@ def test_Q_SVD(n):
         r = dot_product_quat(r, v.conj().T)
         error = err_quat(Q_mat,r)
         errors.append(error)
-        n+=1
+        n+=10
     plt.figure(figsize=(10,9))
     plt.plot(labels, times, label='Experimental Time',marker="o")
     plt.xlabel("Dimensions")
@@ -206,4 +204,5 @@ def test_Q_SVD(n):
     plt.ylabel("Error (%)")
     plt.title("Reconstruction Error for a Quaternion Matrix of differents dimensions")
     plt.show()
+test_Q_SVD(5)
     
