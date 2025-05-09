@@ -17,11 +17,11 @@ def diag_rec(A):
     return X
 def start():
     m, n, K = 64, 100, 10
-    U1, _ = np.linalg.qr(np.random.rand(m, m))
-    V1, _ = np.linalg.qr(np.random.rand(n, n))
-    A = np.zeros((K, m, n))
-    for k in range(K):
-        A[k] = U1 @ diag_rec(np.random.rand(m, n)) @ V1.T
+    # U1, _ = np.linalg.qr(np.random.rand(m, m))
+    # V1, _ = np.linalg.qr(np.random.rand(n, n))
+    A = np.random.rand(K, m, n)
+    #for k in range(K):
+    #    A[k] = U1 @ diag_rec(np.random.rand(m, n)) @ V1.T
     return A
 """
     The function `join_SVD` performs a joint singular value decomposition on a set of matrices to find
@@ -36,6 +36,7 @@ def join_SVD(matrix_set):
     K,m,n= matrix_set.shape
     AU = np.zeros((m, m))
     AV = np.zeros((n, n))
+    value_of =0
     for k in range(K):
         Ak = matrix_set[k]
         AU += Ak @ Ak.T
@@ -58,15 +59,21 @@ def join_SVD(matrix_set):
             N += matrix_set[k].T @ U @ Dk[k]
         Uq, _, Vq = np.linalg.svd(N)
         V = Uq @ Vq
-        err = 0
+        value_of_n = 0
         for k in range(K):
-            err += np.linalg.norm(matrix_set[k] - U @ Dk[k] @ V.T, 'fro')
-        print(f"Iter {i+1}, error: {err:.2e}")
-        if err < tol: #Error
-            print(f"Converged at iteration {i+1}")
-            break
+            value_of_n += np.linalg.norm(matrix_set[k] - U @ Dk[k] @ V.T, 'fro') #esto va a ser valor de la función objetivo
+        #print(value_of_n)
+        if k >0:
+            err = abs(value_of_n - value_of) #criterio de parada
+            #print(f"Iter {i+1}, error: {err:.2e}")
+            if err < tol: #Error
+                print(f"Converged at iteration {i+1}")
+                break
+        value_of = value_of_n
+    print(value_of)
+    print(err)
     return U,Dk,V
-
+#Valor mas cercano 
 # Ejecutar la función
 A_=start()
 join_SVD(A_)
