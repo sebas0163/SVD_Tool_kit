@@ -67,38 +67,32 @@ def calculate_Q_e(quaternion_mat):
     mat_Q_eq = np.vstack((top,bottom)) 
     return mat_Q_eq 
 """
-    The function `find_val` checks if any element in the input vector is within 0.1 of a specified
-    value.
+    The function `get_S_Q` takes a vector of singular values, sorts them in descending order, removes
+    duplicates within a tolerance, and returns a diagonal matrix with the unique singular values.
     
-    :param vect: The `vect` parameter is a list of values that the function `find_val` will iterate
-    through to compare with the `val` parameter
-    :param val: The `val` parameter in the `find_val` function represents the value that each element in
-    the `vect` list is compared against. The function checks if the difference between each element in
-    the `vect` list and the `val` parameter is less than 0.1. If any element
-    :return: The function `find_val` is returning a boolean value. It returns `False` if any element in
-    the `vect` list is within 0.1 of the `val` parameter, otherwise it returns `True`.
-    """
-def find_val(vect, val): #Deletes copy eigenvalues
-    for i in vect:
-        if i - val <0.1:
-            return False
-    return True
-"""
-    The function `get_S_Q` takes a vector as input, removes duplicate values, and returns a diagonal
-    matrix with the unique values.
-    
-    :param vect_s: It seems like the definition of the function `get_S_Q` is incomplete. The function is
-    trying to create a diagonal matrix using unique values from the input vector `vect_s`. However, the
-    function is using a `find_val` function which is not defined in the provided code snippet
-    :return: The function `get_S_Q` is returning a diagonal matrix created from the unique elements in
-    the input vector `vect_s`.
+    :param vect_s: It seems like the code snippet you provided is a Python function that takes a list of
+    singular values `vect_s` as input and returns a diagonal matrix with unique singular values
+    :return: The function `get_S_Q` returns a diagonal matrix created from the unique singular values in
+    the input vector `vect_s`. The function first sorts the singular values in descending order, then
+    iterates through the sorted values to identify unique singular values based on a specified tolerance
+    level `tol`. Finally, it constructs a diagonal matrix using these unique singular values and returns
+    it.
     """
 def get_S_Q(vect_s):
-    vect =[]
-    for i in vect_s:
-        if find_val(vect, i):
-           vect.append(i)
-    return np.diag(vect)
+    tol=1e-8
+    # Ordenar valores singulares de mayor a menor
+    sorted_vals = sorted(vect_s, reverse=True)
+    
+    # Lista para almacenar valores únicos
+    unique_vals = []
+
+    for val in sorted_vals:
+        # Si no hay valores o la diferencia relativa es significativa, se agrega
+        if all(abs(val - u)/max(abs(u), abs(val), 1e-12) > tol for u in unique_vals):
+            unique_vals.append(val)
+
+    # Crear matriz diagonal
+    return np.diag(unique_vals)
 """
     The function `calc_complex_svd` calculates the singular value decomposition (SVD) of a complex
     matrix.
@@ -110,7 +104,7 @@ def get_S_Q(vect_s):
     transpose of `mat_V`.
     """
 def calc_complex_svd(mat_Q_eq):
-    mat_U, mat_S, mat_V = np.linalg.svd(mat_Q_eq)
+    mat_U, mat_S, mat_V = np.linalg.svd(mat_Q_eq,full_matrices=True)
     return mat_U,mat_S, mat_V.conj().T
 """
     The function `get_Uq_Vq` takes two matrices as input, splits them into submatrices, and returns four
@@ -158,7 +152,6 @@ def Q_SVD(mat_Q):
     mat_U,vect_S,mat_V = calc_complex_svd(mat_Q_eq)
     mat_S = get_S_Q(vect_S)
     mat_U_Q_a, mat_U_Q_b, mat_V_Q_a, mat_V_Q_b=get_Uq_Vq(mat_U,mat_V)
-    print(mat_U_Q_a)
     mat_U_Q = complex_mat_to_quat_mat(mat_U_Q_a,mat_U_Q_b)
     mat_V_Q = complex_mat_to_quat_mat(mat_V_Q_a,mat_V_Q_b)
     return mat_U_Q, mat_V_Q, mat_S
@@ -190,19 +183,19 @@ def dot_product_quat(mat_A, mat_B):
                 result[i][j] += mat_A[i, k] * mat_B[k, j]
     return result 
 """
-Test
-q11 = quaternion.quaternion(41,14,88,18)
-q12 = quaternion.quaternion(78,-15,4,0)
-q13 = quaternion.quaternion(-78,-12,45,68)
-q21 = quaternion.quaternion(1,0,-1,2)
-q22 = quaternion.quaternion(3,2,-2,1)
-q23= quaternion.quaternion(47,24,-24,15)
-q31 = quaternion.quaternion(100,85,-41,26)
-q32 = quaternion.quaternion(-3,-2,-2,-1)
-q33= quaternion.quaternion(478,240,-24,150)
-mat_q = np.array([[q11,q12,q13],[q21,q22,q23],[q31,q32,q33]])
-u,v,s=Q_SVD(mat_q)
-r = dot_product_quat(u,s)
-r = dot_product_quat(r, v.conj().T)
-print(r)
-"""
+    The function calculates the Frobenius norm for a matrix of quaternions.
+    
+    :param mat: It seems like the `mat` parameter is a matrix represented as a list of lists. Each inner
+    list represents a row in the matrix, and each element in the inner list represents an element in
+    that row
+    :return: The function `frob_for_quaternions` is returning the Frobenius norm of the input matrix
+    `mat` treated as a collection of quaternions. The Frobenius norm of a matrix is calculated by taking
+    the square root of the sum of the squares of all the elements in the matrix. In this case, the
+    elements of the matrix are treated as quaternions, and the
+    """
+def frob_for_quaternions(mat):
+    sumatory =quaternion.quaternion(0,0,0,0)
+    for row in mat:
+        for elm in row:
+            sumatory+= elm**2
+    return sumatory ** (1/2)

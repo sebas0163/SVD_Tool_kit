@@ -118,6 +118,19 @@ def calc_U_list(b_list, sigma_list,N):
         u_list.append(u_i.T) # the result needs to be transposed
     return u_list
 """
+    The function `verify_cols` checks if all matrices in a list have the same number of columns.
+    
+    :param mat_list: The `mat_list` parameter is a list of matrices. The function `verify_cols` iterates
+    through the list of matrices and checks if the number of columns in each matrix is the same. If the
+    number of columns is not the same for all matrices in the list, it raises a `Value
+    """
+def verify_cols(mat_list):
+    for i in range(len(mat_list)-1):
+        n1 = mat_list[i].shape[1]
+        n2 = mat_list[i+1].shape[1]
+        if n1 != n2:
+            raise ValueError("The matrix columns must be the same for all the matrix in the array")
+"""
     The function `high_Order_SVD` performs high-order singular value decomposition on a list of
     matrices.
     
@@ -130,6 +143,7 @@ def calc_U_list(b_list, sigma_list,N):
     3. `matrix_v`: The matrix representing the right singular vectors.
     """
 def high_Order_SVD(matrix_list):
+    verify_cols(matrix_list)
     N = len(matrix_list) #Takes de numbers of matrices to analize
     matrix_s = calc_S(matrix_list,N) #Calculates the matrix S, that is used to calculate de matrix V
     matrix_v = calc_matrix_V(matrix_s) 
@@ -137,38 +151,5 @@ def high_Order_SVD(matrix_list):
     sigma_list = calc_sigma(b_list)
     matrix_u_list = calc_U_list(b_list,sigma_list,N) #calculates the list o matrices U
     return matrix_u_list, sigma_list, matrix_v 
-"""   
-def prueba(i,j,N):
-    matrix_list =[]
-    for r in range(N):
-        a =np.random.rand(i,j)
-        matrix_list.append(a)
-    ini = tm.perf_counter()
-    m,l,o=high_Order_SVD(matrix_list=matrix_list)
-    end = tm.perf_counter()
-    org =matrix_list[0]
-    exp=m[0]@l[0]@o.T
-    mae =np.mean(np.abs(org-exp))
-    err = (mae/np.mean(org))*100
-    print("err: ",err )
-    print(end-ini)
-def prueba_more_rows(i,j,N):
-    matrix_list =[]
-    for r in range(N):
-        a =np.random.rand(np.random.randint(j,i),j)
-        matrix_list.append(a)
-    ini = tm.perf_counter()
-    m,l,o=high_Order_SVD(matrix_list=matrix_list)
-    end = tm.perf_counter()
-    org =matrix_list[0]
-    exp=m[0]@l[0]@o.T
-    mae =np.mean(np.abs(org-exp))
-    err = (mae/np.mean(org))*100
-    print("err: ",err )
-    print(end-ini)
-"""
-
-#prueba(100,100,17)
-#prueba_more_rows(1000,500,17)
 
 

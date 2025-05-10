@@ -16,7 +16,7 @@ def full_svd(A):
         order = np.argsort(D)[::-1] 
         D, V = D[order], V1[:, order]
         s = np.sqrt(np.maximum(D, 0))  
-        S = np.vstack([np.diag(s), np.zeros((m - n, n))])
+        #S = np.vstack([np.diag(s), np.zeros((m - n, n))])
         mask = s > np.finfo(float).eps 
         U1 = (A @ V[:, mask]) / s[mask]
         U2, _ = np.linalg.qr(np.random.rand(m, m - mask.sum()))
@@ -27,9 +27,9 @@ def full_svd(A):
         order = np.argsort(D)[::-1]
         D, U = D[order], U1[:, order]
         s = np.sqrt(np.maximum(D, 0))
-        S = np.hstack([np.diag(s), np.zeros((m, n - m))])
+        #s = np.hstack([np.diag(s), np.zeros((m, n - m))])
         mask = s > np.finfo(float).eps
-        V1 = (A.T @ U[:, mask]) / s[mask]
+        V1 = ((A.T @ U[:, mask]) / s[mask])
         V2, _ = np.linalg.qr(np.random.rand(n, n - mask.sum()))
         V = np.hstack([V1, V2])
-    return U, S, V.T
+    return U, s, V
