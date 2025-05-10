@@ -1,7 +1,7 @@
 import numpy as np
 import time as tm
 from scipy.linalg import cossin
-from SVD import svd
+from .SVD import svd
 
 #A and B must have the same number of columns and more or equal number of rows than columns
 def GSVD(matrix_A,matrix_B):

@@ -2,12 +2,7 @@ import numpy as np
 import time as tm
 import quaternion
 import matplotlib.pyplot as plt
-from T_SVD import T_SVD,t_product,transpose_Tensor
-from Q_SVD import Q_SVD, frob_for_quaternions,dot_product_quat
-from SVD import svd
-from HO_SVD import high_Order_SVD
-from GSVD import GSVD
-from Join_SVD import join_SVD
+from SVD_Tool_Kit import compact_svd,GSVD,T_SVD,high_Order_SVD,join_SVD,Q_SVD,t_product,transpose_Tensor,frob_for_quaternions,dot_product_quat,svd
 def err_quat(Q_org, Q_const):
     num = abs(frob_for_quaternions(Q_org-Q_const))
     denom = frob_for_quaternions(Q_org)

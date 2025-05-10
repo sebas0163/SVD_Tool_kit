@@ -1,0 +1,7 @@
+Requirements 
+numpy==2.2.5
+scipy==1.15.3
+numpy-quaternion
+
+To install quaternion use python -m pip install --upgrade --force-reinstall numpy-quaternion
+

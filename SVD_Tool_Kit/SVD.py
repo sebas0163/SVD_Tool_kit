@@ -1,6 +1,6 @@
 import numpy as np
-from Compact_SVD import compact_svd
-from Complete_svd import full_svd
+from .Compact_SVD import compact_svd
+from .Complete_svd import full_svd
 """
     The function `svd` computes either a full or compact singular value decomposition of a given matrix
     based on the `complete` parameter.
