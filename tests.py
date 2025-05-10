@@ -7,6 +7,7 @@ from Q_SVD import Q_SVD, frob_for_quaternions,dot_product_quat
 from SVD import svd
 from HO_SVD import high_Order_SVD
 from GSVD import GSVD
+from Join_SVD import join_SVD
 def err_quat(Q_org, Q_const):
     num = abs(frob_for_quaternions(Q_org-Q_const))
     denom = frob_for_quaternions(Q_org)
@@ -21,8 +22,7 @@ def err(t_org, t_const):
     if denom ==0:
         denom = 0.0000001
     return (num/denom)*100
-
-def com_time__compact_SVD(m,n): #This algorithm compares the numpy compact svd and the experimental compact svd
+def com_time__compact_SVD(m,n):
     labels=[]
     times_exp =[]
     improve = []
@@ -144,7 +144,7 @@ def test_T_SVD(k,m,n):
     labels =[]
     for i in range(10):
         tensor = np.random.rand(k,m,n)
-        labels.append(str(k)+str(m)+"x"+str(n))
+        labels.append(str(k)+"x"+str(m)+"x"+str(n))
         m +=10
         n +=10
         k+=10
@@ -167,6 +167,41 @@ def test_T_SVD(k,m,n):
     plt.xlabel("Dimensions")
     plt.ylabel("Error (%)")
     plt.title("Reconstruction Error for N matrix of 100x100")
+    plt.show()
+def test_joint_svd(k,m,n):
+    labels = []
+    times =[]
+    errors=[]
+    values =[]
+    for _ in range (10):
+        tensor = np.random.rand(k,m,n)
+        start = tm.perf_counter()
+        _,_,_,err,_,value_of = join_SVD(tensor)
+        end = tm.perf_counter()
+        times.append(end-start)
+        labels.append(str(k)+"x"+str(m)+"x"+str(n))
+        errors.append(err)
+        values.append(value_of)
+        k +=1
+        n +=1
+        m +=1
+    plt.figure(figsize=(10,9))
+    plt.plot(labels, times, label='Experimental Time',marker="o")
+    plt.xlabel("Dimensions")
+    plt.ylabel("Execution time (ms)")
+    plt.legend()
+    plt.show()
+    plt.figure(figsize=(10,9))
+    plt.bar(labels, errors, width=0.3)
+    plt.xlabel("Dimensions")
+    plt.ylabel("Error (%)")
+    plt.title("Reconstruction Error")
+    plt.show()
+    plt.figure(figsize=(10,9))
+    plt.bar(labels, values, width=0.3)
+    plt.xlabel("Dimensions")
+    plt.ylabel("Minimized error")
+    plt.title("Minimized Error between matrix")
     plt.show()
 def test_Q_SVD(n):
     Q_mat =[]
@@ -204,5 +239,3 @@ def test_Q_SVD(n):
     plt.ylabel("Error (%)")
     plt.title("Reconstruction Error for a Quaternion Matrix of differents dimensions")
     plt.show()
-test_Q_SVD(5)
-    
