@@ -15,22 +15,15 @@ def diag_rec(A):
     for i in range(k):
         X[i, i] = A[i, i]
     return X
-def start():
-    m, n, K = 64, 100, 10
-    # U1, _ = np.linalg.qr(np.random.rand(m, m))
-    # V1, _ = np.linalg.qr(np.random.rand(n, n))
-    A = np.random.rand(K, m, n)
-    #for k in range(K):
-    #    A[k] = U1 @ diag_rec(np.random.rand(m, n)) @ V1.T
-    return A
 """
-    The function `join_SVD` performs a joint singular value decomposition on a set of matrices to find
-    the low-rank approximation.
+    The function `join_SVD` performs Singular Value Decomposition (SVD) on a set of matrices iteratively
+    to find the best approximation using matrix factorization.
     
-    :param matrix_set: It seems like the code snippet you provided is a Python function for performing
-    Singular Value Decomposition (SVD) on a set of matrices stored in `matrix_set`. The function
-    iteratively calculates the SVD of each matrix in the set and updates the singular vectors `U` and
-    `V` until
+    :param matrix_set: It seems like the description of the `matrix_set` parameter is missing. Could you
+    please provide more information on what the `matrix_set` contains or represents? This will help in
+    understanding the input data structure and how the function `join_SVD` is intended to operate on it
+    :return: The function `join_SVD` returns the matrices U, Dk, V, the error value, the number of
+    iterations performed, and the final value calculated.
     """
 def join_SVD(matrix_set):
     K,m,n= matrix_set.shape
@@ -61,25 +54,11 @@ def join_SVD(matrix_set):
         V = Uq @ Vq
         value_of_n = 0
         for k in range(K):
-            value_of_n += np.linalg.norm(matrix_set[k] - U @ Dk[k] @ V.T, 'fro') #esto va a ser valor de la función objetivo
-        #print(value_of_n)
+            value_of_n += np.linalg.norm(matrix_set[k] - U @ Dk[k] @ V.T, 'fro') 
         if k >0:
-            err = abs(value_of_n - value_of) #criterio de parada
-            #print(f"Iter {i+1}, error: {err:.2e}")
+            err = abs(value_of_n - value_of) 
             if err < tol: #Error
-                print(f"Converged at iteration {i+1}")
                 break
         value_of = value_of_n
-    print(value_of)
-    print(err)
-    return U,Dk,V
-"""
-Para la compact SVD se tiene
-Elegir el algoritmo que quiera del paper
-HO para eliminar ruido
-Tensor compresión pero aplicarlo a una imagen a color RGB 
-Quateriniones compresión con color
-Joint resolver sistema de ecuaciones 
-"""
-A_=start()
-join_SVD(A_)
+        iteration = i+1
+    return U,Dk,V,err,iteration,value_of
