@@ -73,7 +73,13 @@ def join_SVD(matrix_set):
     print(value_of)
     print(err)
     return U,Dk,V
-#Valor mas cercano 
-# Ejecutar la función
+"""
+Para la compact SVD se tiene
+Elegir el algoritmo que quiera del paper
+HO para eliminar ruido
+Tensor compresión pero aplicarlo a una imagen a color RGB 
+Quateriniones compresión con color
+Joint resolver sistema de ecuaciones 
+"""
 A_=start()
 join_SVD(A_)
