@@ -1,3 +1,4 @@
+
 # SVD_Tool_Kit
 
 **SVD_Tool_Kit** is a computational library in Python designed to compute different types of Singular Value Decompositions (SVDs), with the aim of optimizing the processing of multidimensional data and enhancing image analysis through advanced algorithmic implementations.
@@ -8,18 +9,23 @@
 
 This library requires the following dependencies:
 
-numpy==2.2.5
-scipy==1.15.3
+```
+numpy==2.2.5  
+scipy==1.15.3  
 numpy-quaternion
+```
 
 To install `numpy-quaternion`, use the following command:
 
 ```bash
 python -m pip install --upgrade --force-reinstall numpy-quaternion
+```
 
 You can also install all dependencies at once using:
 
+```bash
 pip install -r requirements.txt
+```
 
 ## ⚙️ Provided Decompositions
 
@@ -58,8 +64,8 @@ A high-complexity algorithm for color image processing. It is based on the decom
 ### `svd(matrix, complete)`
 
 - **Parameters**:
-  - `matrix`: 2D array or matrix to decompose.
-  - `complete`: Boolean flag; `True` for full SVD, `False` for compact SVD.
+  - `matrix`: 2D array or matrix to decompose.
+  - `complete`: Boolean flag; `True` for full SVD, `False` for compact SVD.
 - **Returns**: `u`, `s`, `v` — the matrices from the decomposition \( A = U \Sigma V^T \)
 
 ---
@@ -67,7 +73,7 @@ A high-complexity algorithm for color image processing. It is based on the decom
 ### `GSVD(matrix_A, matrix_B)`
 
 - **Parameters**:
-  - `matrix_A`, `matrix_B`: Two matrices with the same number of columns and at least as many rows as columns.
+  - `matrix_A`, `matrix_B`: Two matrices with the same number of columns and at least as many rows as columns.
 - **Returns**: `u_1`, `u_2`, `d_a`, `d_b`, `x` — orthogonal bases for A and B, their diagonal matrices, and the shared transformation matrix `x`.
 
 ---
@@ -76,9 +82,9 @@ A high-complexity algorithm for color image processing. It is based on the decom
 
 - **Input**: A set of matrices with the same number of columns but potentially different row counts.
 - **Returns**:
-  - `matrix_u_list`: List of left singular vectors.
-  - `sigma_list`: List of singular values.
-  - `matrix_v`: Shared right singular vectors.
+  - `matrix_u_list`: List of left singular vectors.
+  - `sigma_list`: List of singular values.
+  - `matrix_v`: Shared right singular vectors.
 
 ---
 
@@ -86,8 +92,8 @@ A high-complexity algorithm for color image processing. It is based on the decom
 
 - **Input**: A set of matrices with different row and column dimensions.
 - **Returns**:
-  - `U`, `Dk`, `V`: Resulting matrices from the decomposition.
-  - Error value, iteration count, and the final value calculated during the optimization.
+  - `U`, `Dk`, `V`: Resulting matrices from the decomposition.
+  - Error value, iteration count, and the final value calculated during the optimization.
 
 ---
 
@@ -95,8 +101,8 @@ A high-complexity algorithm for color image processing. It is based on the decom
 
 - **Parameter**: `mat_Q`, a quaternion matrix.
 - **Returns**:
-  - `mat_U_Q`, `mat_V_Q`: Quaternion orthogonal matrices.
-  - `mat_S`: Singular value matrix.
+  - `mat_U_Q`, `mat_V_Q`: Quaternion orthogonal matrices.
+  - `mat_S`: Singular value matrix.
 
 ---
 
@@ -104,7 +110,7 @@ A high-complexity algorithm for color image processing. It is based on the decom
 
 - **Input**: A 3D tensor.
 - **Returns**:
-  - `tensor_U`, `tensor_S`, `tensor_V`: The SVD components of the tensor in the Fourier domain.
+  - `tensor_U`, `tensor_S`, `tensor_V`: The SVD components of the tensor in the Fourier domain.
 
 ---
 
