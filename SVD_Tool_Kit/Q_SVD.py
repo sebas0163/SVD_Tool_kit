@@ -4,9 +4,7 @@ import quaternion
     The function `quat_to_complex` converts a matrix of quaternions into two matrices of complex
     numbers.
     
-    :param quaternion_mat: It seems like the definition of the `quaternion_mat` parameter is missing in
-    the provided code snippet. Could you please provide the definition or structure of the
-    `quaternion_mat` parameter so that I can assist you further with the `quat_to_complex` function?
+    :param quaternion_mat: Quaternion matrix
     :return: The function `quat_to_complex` returns two complex matrices `mat_A` and `mat_B` which are
     derived from the input quaternion matrix `quaternion_mat`. `mat_A` contains the real and imaginary
     parts of the quaternion elements, while `mat_B` contains the other two imaginary parts of the
@@ -159,13 +157,8 @@ def Q_SVD(mat_Q):
     The function `dot_product_quat` calculates the dot product of two matrices represented as
     quaternions.
     
-    :param mat_A: It seems like the definition of the `dot_product_quat` function is incomplete. Could
-    you please provide the missing part of the code related to the `mat_A` parameter so that I can
-    better understand the function and assist you further?
-    :param mat_B: It seems like you have provided the function `dot_product_quat` that calculates the
-    dot product of two matrices represented as quaternions. However, you have not provided the
-    definition or content of `mat_B`. Could you please provide the content of `mat_B` so that I can
-    assist you
+    :param mat_A: quaternion matrix with size mxn
+    :param mat_B: quaternion matrix with size nxm_1
     :return: The `dot_product_quat` function is returning the result of the dot product operation
     between two matrices `mat_A` and `mat_B`. The result is a new matrix of quaternions where each
     element is calculated by multiplying and summing the corresponding elements of `mat_A` and `mat_B`

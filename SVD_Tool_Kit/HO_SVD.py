@@ -18,20 +18,18 @@ def calc_GAM(matrixs):
         ai = i.T @ i #For each matrix in the list is calculated the GAM Matrix d_i ^T d_i
         a_list.append(ai) #Concatenate all the Gam matrix to the new list
     return a_list
+
 """
-    This function calculates the sum of products of inverses of matrices in a given list and returns the
-    result multiplied by a constant.
-    
-    :param matrixs: It seems like the description of the `matrixs` parameter is incomplete. Could you
-    please provide more information on what the `matrixs` parameter represents or what kind of data it
-    contains? This will help in understanding the context of the function `calc_S` and how it operates
-    on the input data
-    :param N: It seems like the function `calc_S` is designed to calculate a matrix `matrix_s` based on
-    the input parameters `matrixs` and `N`. However, the definition of the parameter `N` is missing.
-    Could you please provide more information about what `N` represents in this context
-    :return: The function `calc_S` returns the matrix `matrix_s`, which is the result of the calculation
-    involving the input matrices `matrixs` and the constant `const`.
-    """
+ Computes a symmetric matrix S from a list of matrices using pairwise
+ combinations of each matrix and its pseudoinverse. Common in HO-SVD.
+
+ Parameters:
+ - matrixs (list): List of input matrices.
+ - N (int): Number of matrices.
+
+ Returns:
+ - matrix_s (np.ndarray): Symmetric matrix result.
+"""
 def calc_S(matrixs, N):
     gam_list=calc_GAM(matrixs=matrixs)
     const = 1/(N*(N-1)) #Calculates the constant of the sumatory S =====> 1/N(N+1)
@@ -60,11 +58,8 @@ def calc_matrix_V(matrix_s):
     The function `calc_B_list` takes two matrices as input, solves a system of linear equations using
     one matrix and then appends the solution to a list for each matrix in the second input matrix.
     
-    :param matrix_v: It seems like the description of the `matrix_v` parameter is missing. Could you
-    please provide more information about what `matrix_v` represents or how it is structured so that I
-    can assist you further with the `calc_B_list` function?
-    :param matrix_D: It seems like you were about to provide some information about the `matrix_D`
-    parameter but the message got cut off. Could you please provide more details about the `matrix_D`
+    :param matrix_v:A orthogonal matrix calculated in the last step
+    :param matrix_D: Diagonal matrix
     parameter so that I can assist you further with the `calc_B_list` function?
     :return: The function `calc_B_list` returns a list of vectors `b_list`, where each vector is the
     result of solving a linear system of equations using the matrix `matrix_v` and the transpose of a
@@ -102,9 +97,7 @@ def calc_sigma(b_list):
     
     :param b_list: The `b_list` parameter is a list of matrices where each matrix represents a vector
     `b` for a system of linear equations
-    :param sigma_list: It seems like you were about to provide more information about the parameters,
-    but the message got cut off. Could you please provide more details about the `sigma_list` parameter
-    so that I can assist you further with the `calc_U_list` function?
+    :param sigma_list: matrix of singular values
     :param N: The parameter N represents the number of elements in the lists b_list and sigma_list. It
     is used as the range for the loop in the function calc_U_list to iterate over the elements in these
     lists
@@ -119,7 +112,6 @@ def calc_U_list(b_list, sigma_list,N):
     return u_list
 """
     The function `verify_cols` checks if all matrices in a list have the same number of columns.
-    
     :param mat_list: The `mat_list` parameter is a list of matrices. The function `verify_cols` iterates
     through the list of matrices and checks if the number of columns in each matrix is the same. If the
     number of columns is not the same for all matrices in the list, it raises a `Value
@@ -134,9 +126,7 @@ def verify_cols(mat_list):
     The function `high_Order_SVD` performs high-order singular value decomposition on a list of
     matrices.
     
-    :param matrix_list: It seems like the description of the `matrix_list` parameter is missing. Could
-    you please provide more information about what the `matrix_list` contains or represents so that I
-    can assist you further with the `high_Order_SVD` function?
+    :param matrix_list: array of matrix with the same number of cols
     :return: The function `high_Order_SVD` is returning a tuple containing three elements:
     1. `matrix_u_list`: A list of matrices representing the left singular vectors.
     2. `sigma_list`: A list of singular values.
