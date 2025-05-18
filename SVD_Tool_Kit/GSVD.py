@@ -1,9 +1,21 @@
 import numpy as np
 import time as tm
 from scipy.linalg import cossin
-from SVD import svd
+from .SVD import svd
 
-#A and B must have the same number of columns and more or equal number of rows than columns
+"""
+    The GSVD function calculates the generalized singular value decomposition of two input matrices and
+    returns specific components of the decomposition.
+    
+    :param matrix_A: Matrix of m_1xn size
+    :param matrix_B: Matrix of m_2xn size
+    :return: The function `GSVD` returns the following variables:
+    - `u_1`: Matrix U1 calculated from the SVD decomposition
+    - `u_2`: Matrix U2 calculated from the SVD decomposition
+    - `d_a`: Matrix D_A extracted from the CS decomposition
+    - `d_b`: Matrix D_B extracted from the CS decomposition
+    - `x`: Matrix X calculated based on
+    """
 def GSVD(matrix_A,matrix_B):
     m,n = matrix_A.shape
     j,k = matrix_B.shape

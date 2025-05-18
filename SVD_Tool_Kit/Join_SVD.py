@@ -19,11 +19,7 @@ def diag_rec(A):
     The function `join_SVD` performs Singular Value Decomposition (SVD) on a set of matrices iteratively
     to find the best approximation using matrix factorization.
     
-    :param matrix_set: It seems like the description of the `matrix_set` parameter is missing. Could you
-    please provide more information on what the `matrix_set` contains or represents? This will help in
-    understanding the input data structure and how the function `join_SVD` is intended to operate on it
-    :return: The function `join_SVD` returns the matrices U, Dk, V, the error value, the number of
-    iterations performed, and the final value calculated.
+    :param matrix_set: array of matrix
     """
 def join_SVD(matrix_set):
     K,m,n= matrix_set.shape
