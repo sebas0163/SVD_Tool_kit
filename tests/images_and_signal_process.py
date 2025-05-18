@@ -89,7 +89,7 @@ def test_img_GSVD(image_1, image_2):
     plt.imshow(reconst_2, cmap="gray")
     plt.axis("off")
     plt.subplot(2, 3, 3)
-    plt.title("Difference between both images")
+    plt.title("Difference")
     plt.imshow(np.abs(reconst_1 - reconst_2), cmap="hot")
     plt.axis("off")
     plt.tight_layout()
@@ -317,9 +317,9 @@ def test_data_analisys_joint_svd():
     plt.show()
 """
 You can use this examples or try with your owns
-test_anomalous_tensorSVD("winnie.jpg")
-test_compre_hosvd("winnie.jpg",170)
-test_img_GSVD("winnie.jpg","winnie_2.JPG")
+test_anomalous_tensorSVD("images_2.jpeg")
+test_compre_hosvd("images_2.jpeg",170)
 test_data_analisys_joint_svd()
 compressImage_copact_SVD('grayscale_img.jpg',410)
+test_img_GSVD("images_2.jpeg","images_2_cop.jpg")
 """
