@@ -1,0 +1,19 @@
+[project]
+name = "svd-tool-kit"
+version = "0.1.0"
+description = "A toolkit for different types of Singular Value Decomposition in Python"
+readme = "README.md"
+authors = [
+    { name = "Sebastián Moya Monge", email = "tucorreo@example.com" }
+]
+license = { text = "MIT" }
+dependencies = [
+    "numpy==2.2.5",
+    "scipy==1.15.3",
+    "numpy-quaternion"
+]
+requires-python = ">=3.8"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

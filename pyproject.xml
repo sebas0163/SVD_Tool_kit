@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SVD_Tool_Kit"
+version = "0.1.0"
+description='Copilation of SVD methods (Compact SVD, Generalized SVD, High Order SVD, Joint SVD, Tensor SVD and Quaternion SVD)'
+authors = [
+  {name = "Sebastián Moya Monge"}
+]
+dependencies = [
+  'numpy',
+  'scipy',
+  'quaternion'
+]
